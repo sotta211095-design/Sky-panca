@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Pesawat Cendekia 3D</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E✈️%3C/text%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b2a4a;font-family:'Trebuchet MS','Segoe UI',system-ui,sans-serif;font-weight:800;touch-action:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#hud{position:fixed;left:0;right:0;bottom:0;top:44px;pointer-events:none}
+.pv{position:absolute;--u:5px}
+.pn{position:absolute;top:1.5%;left:2%;color:#fff;font-size:max(11px,calc(var(--u)*3.6));padding:.2em .7em;border-radius:99px;text-shadow:0 1px 2px #0006}
+.pq{position:absolute;top:max(40px,calc(var(--u)*9));left:50%;transform:translateX(-50%);width:94%;text-align:center;background:#fffffff0;color:#12406b;border-radius:calc(var(--u)*3);padding:.35em .4em;box-shadow:0 4px 14px #0004;line-height:1.15}
+.pq small{display:block;font-size:max(10px,calc(var(--u)*3.2));color:#5b7a99}
+.pq b{font-size:max(15px,calc(var(--u)*7.5));word-break:break-word}
+.pf{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);width:92%;text-align:center;color:#fff;border-radius:calc(var(--u)*3);padding:.3em .5em;font-size:max(14px,calc(var(--u)*6.5));display:none;box-shadow:0 4px 14px #0005;line-height:1.2}
+.ps{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);background:#0006;padding:.15em .8em;border-radius:99px;color:#fff;font-size:max(11px,calc(var(--u)*4));text-shadow:0 2px 4px #000a;white-space:nowrap}
+.cb{pointer-events:auto;touch-action:none;position:absolute;bottom:3%;width:max(52px,calc(var(--u)*20));height:max(52px,calc(var(--u)*20));border-radius:50%;border:3px solid #fff;background:#ffffff59;color:#fff;font-size:max(20px,calc(var(--u)*8));backdrop-filter:blur(2px)}
+.cb.l{left:3%}.cb.r{right:3%}
+.pp{pointer-events:auto;position:absolute;top:4px;right:6px;height:max(30px,calc(var(--u)*6.5));padding:0 .8em;border-radius:99px;border:3px solid #fff;background:#0b4a8fdd;color:#fff;font:inherit;font-size:max(12px,calc(var(--u)*3.4))}.pp:active{background:#ff9800}
+.pj{display:none;position:absolute;left:50%;top:70%;transform:translateX(-50%);width:90%;text-align:center;background:#ff9800;color:#fff;border-radius:14px;padding:.25em .5em;font-size:max(11px,calc(var(--u)*3.6));box-shadow:0 3px 10px #0006}.cb:active{background:#ffffffaa}
+#bar{position:fixed;top:0;left:0;right:0;height:44px;display:flex;justify-content:center;align-items:center;gap:10px;z-index:5;background:#0b2a4a}
+
+.pv::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 2px #ffffffaa,inset 0 0 calc(var(--u)*14) #0006}
+#bar button{height:34px;padding:0 14px;border-radius:99px;border:2px solid #fff;background:#0b4a8f;color:#fff;font:inherit;font-size:15px}
+.ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;z-index:10;overflow:auto;background:linear-gradient(#0b4a8f99,#0b8f6a66);color:#fff;text-align:center}
+.hide{display:none!important}
+.logo{font-size:clamp(26px,7vw,54px);line-height:1.05;text-shadow:0 4px 0 #0b3a70,0 8px 18px #0008;color:#ffe45e}
+.pq{top:0;left:0;transform:none;width:100%;height:var(--qh);border-radius:0;padding:30px 6px 2px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 3px 8px #0005;border-bottom:5px solid #1a6fd1}
+.pq small{position:absolute;top:5px;left:50%;transform:translateX(-50%);font-size:max(11px,calc(var(--u)*2.8));white-space:nowrap}
+.pq b{display:block;max-width:100%;font-size:max(14px,calc(var(--u)*6))}
+.pn{top:4px;left:6px;z-index:2;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:max(11px,calc(var(--u)*2.8));padding:.15em .6em}
+.pp{top:3px;right:6px;z-index:2;height:max(24px,calc(var(--u)*4.5));font-size:max(11px,calc(var(--u)*2.8));padding:0 .6em;border-width:2px}
+.pf{top:0;left:0;transform:none;width:100%;height:var(--qh);border-radius:0;padding:30px 8px 4px;align-items:center;justify-content:center;overflow:hidden;font-size:max(13px,calc(var(--u)*4.6));z-index:1}
+.pj{top:auto;bottom:34px;width:70%}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes gs{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+.pq b{animation:pop .35s ease-out}.pf{animation:pop .4s ease-out}
+.ov{background:linear-gradient(135deg,#0b4a8f99,#0b8f6a66,#ffb30033,#0b4a8f99);background-size:300% 300%;animation:gs 12s ease infinite}
+.btn{transition:transform .12s,filter .2s}.btn:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.fl{position:absolute;left:0;right:0;bottom:0;top:var(--qh);pointer-events:none;opacity:0}
+.fl.ok{background:radial-gradient(circle,#ffe45e66,#2ecc7155 60%,transparent 85%);animation:fx .6s ease-out}
+.fl.bad{background:radial-gradient(circle,#ff525233,#ff3b3b88 95%);animation:fx .6s ease-out}
+@keyframes fx{0%{opacity:1}100%{opacity:0}}
+.pv::before{content:'';position:absolute;left:0;right:0;bottom:0;top:var(--qh);pointer-events:none;background:radial-gradient(circle at 14% 10%,#fff7c299 0,#fff7c233 14%,transparent 34%);mix-blend-mode:screen}
+.pop{position:absolute;left:50%;top:calc(var(--qh) + 34%);font-size:max(20px,calc(var(--u)*9));color:#ffe45e;text-shadow:0 3px 0 #b36b00,0 0 14px #fff9;pointer-events:none;z-index:3;white-space:nowrap;animation:rise 1.1s ease-out forwards}.pop.bad{color:#ff6b6b;text-shadow:0 3px 0 #7a1010}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}20%{opacity:1;transform:translate(-50%,0) scale(1.25)}100%{opacity:0;transform:translate(-50%,-70px) scale(1)}}
+.pb{position:absolute;left:0;right:0;top:var(--qh);height:5px;background:#0006;z-index:2}.pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffe45e,#2ecc71);transition:width .4s}
+@keyframes bm{50%{filter:brightness(1.7)}}.bump{animation:bm .45s}
+@keyframes fl{50%{transform:translateY(-8px)}}.logo{animation:fl 3s ease-in-out infinite}
+.logo small{display:block;font-size:.42em;color:#fff;margin-top:6px}
+.panel{display:flex;flex-direction:column;gap:10px;width:min(440px,94vw);align-items:stretch}
+.btn{border:0;border-radius:18px;padding:.75em 1em;font:inherit;font-size:clamp(16px,4.2vw,22px);color:#fff;background:linear-gradient(#34c759,#13a03a);box-shadow:0 5px 0 #0b6a26,0 8px 14px #0005;cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #0b6a26}
+.btn.b{background:linear-gradient(#3d9bff,#1a6fd1);box-shadow:0 5px 0 #0d4a96,0 8px 14px #0005}
+.btn.o{background:linear-gradient(#ffb300,#f08a00);box-shadow:0 5px 0 #a55a00,0 8px 14px #0005}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{border:3px solid #fff;border-radius:99px;padding:.45em 1em;background:#ffffff33;color:#fff;font:inherit;font-size:clamp(15px,4vw,20px);cursor:pointer}
+.chip.on{background:#ffb300;border-color:#fff3b0;color:#4a2a00}
+.panel h3{margin:0;font-size:clamp(18px,4.5vw,26px)}
+.panel input[type=text]{border-radius:12px;border:3px solid #fff;padding:.4em .7em;font:inherit;font-size:16px;color:#12406b;width:100%}
+.panel p,.panel li{font-size:clamp(14px,3.6vw,17px);text-align:left;margin:4px 0;line-height:1.35}
+.credit{font-size:13px;opacity:.9}
+table{border-collapse:collapse;background:#fffffff0;color:#12406b;border-radius:14px;overflow:hidden;font-size:clamp(11px,2.8vw,17px)}
+td,th{padding:.45em .55em;border-bottom:1px solid #cde}th{background:#1a6fd1;color:#fff}
+#load{background:#0b2a4a;z-index:30}.bar{width:min(300px,70vw);height:14px;border-radius:9px;background:#ffffff33;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#ffe45e;transition:width .3s}
+</style></head><body data-np="1">
+<canvas id="c"></canvas><div id="hud"></div>
+<div id="bar" class="hide"><button id="bp" aria-label="Jeda">Jeda Semua ⏸</button><button id="bm" aria-label="Menu">Menu 🏠</button></div>
+
+<div id="menu" class="ov hide">
+ <div class="logo">✈️ PESAWAT CENDEKIA 3D<small>Petualangan Matematika</small></div>
+ <div class="panel" id="m-main">
+  <button class="btn" id="go">▶ MULAI PETUALANGAN</button>
+  <button class="btn b" data-p="m-kelas">🎚 PILIH TINGKAT &amp; MAPEL</button>
+  <button class="btn b" data-p="m-pemain">👥 PILIH JUMLAH PEMAIN</button>
+  <button class="btn b" data-p="m-dunia">🌄 PILIH DUNIA</button>
+  <button class="btn o" data-p="m-set">⚙️ PENGATURAN</button>
+  <button class="btn o" data-p="m-help">❓ PETUNJUK PERMAINAN</button>
+  <div id="sum" class="credit"></div>
+ </div>
+ <div class="panel hide" id="m-kelas"><h3>Tingkat Kesulitan</h3><div class="chips" id="ch-kelas"></div><h3>Mata Pelajaran</h3><div class="chips" id="ch-mapel"></div><button class="btn" data-p="m-main">✔ Kembali</button></div>
+ <div class="panel hide" id="m-pemain"><h3>Jumlah Pemain</h3><div class="chips" id="ch-np"></div><div id="names"></div><button class="btn" data-p="m-main">✔ Kembali</button></div>
+ <div class="panel hide" id="m-dunia"><h3>Pilih Dunia</h3><div class="chips" id="ch-dunia"></div><button class="btn" data-p="m-main">✔ Kembali</button></div>
+ <div class="panel hide" id="m-set"><h3>Pengaturan</h3>
+  <label>🔊 Volume <input type="range" id="vol" min="0" max="1" step=".05" style="width:100%"></label>
+  <div class="chips" id="ch-mute"></div><h3>Jumlah Soal</h3><div class="chips" id="ch-total"></div>
+  <button class="btn o" id="reset">🗑 Hapus Skor Tersimpan</button><button class="btn" data-p="m-main">✔ Kembali</button></div>
+ <div class="panel hide" id="m-help"><h3>Petunjuk Permainan</h3>
+  <p>✈️ Baca soal, lalu <b>kemudikan pesawat</b> ke kiri/kanan menuju gerbang cincin A, B, C, atau D yang berisi jawaban benar.</p>
+  <p>⭐ Jawaban benar = 100 poin. Jawaban salah = 0 poin, jawaban benar ditampilkan.</p>
+  <ul><li>Pemain 1: tombol <b>A</b> dan <b>D</b></li><li>Pemain 2: tombol <b>panah ◀ ▶</b></li><li>Pemain 3: tombol <b>J</b> dan <b>L</b></li><li>Pemain 4: <b>Numpad 4</b> dan <b>6</b></li><li>Pemain 5: <b>Q</b> / <b>E</b> • Pemain 6: <b>U</b> / <b>O</b> • Pemain 7: <b>Z</b> / <b>C</b> • Pemain 8: <b>B</b> / <b>M</b></li><li>HP/layar sentuh: tombol ◀ ▶ di area masing-masing</li><li>Jeda: tombol ⏸ atau tombol P / Esc (semua pemain)</li><li>Jeda pribadi: tombol ⏸ Jeda di area masing-masing, atau tombol S / ↓ / K / Numpad 5 / W / I / X / N (pemain 1–8). Berguna untuk membaca soal dan pilihan jawaban.</li></ul>
+  <button class="btn" data-p="m-main">✔ Kembali</button></div>
+ <div class="credit">Creator: Panca Siri Maulana, S.Pd.</div>
+</div>
+
+<div id="pause" class="ov hide"><div class="logo">⏸ Jeda</div><div class="panel"><button class="btn" id="resume">▶ Lanjutkan</button><button class="btn o" id="tomenu">🏠 Kembali ke Menu</button></div></div>
+<div id="res" class="ov hide"><div class="logo">🏆 Hasil Akhir</div><div id="rt"></div><div class="panel"><button class="btn" id="again">🔁 Main Lagi</button><button class="btn o" id="rmenu">🏠 Menu Utama</button></div></div>
+<div id="load" class="ov"><div class="logo">✈️ PESAWAT CENDEKIA 3D</div><div>Memuat dunia 3D…</div><div class="bar"><i id="lb"></i></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const S={kelas:4,np:1,dunia:'siang',vol:.6,mute:false,total:10,mapel:'mtk',names:['Pemain 1','Pemain 2','Pemain 3','Pemain 4','Pemain 5','Pemain 6','Pemain 7','Pemain 8']};
+try{Object.assign(S,JSON.parse(localStorage.pc_set||'{}'))}catch(e){}
+for(let i=0;i<8;i++)if(!S.names[i])S.names[i]='Pemain '+(i+1);if(!S.mapel)S.mapel='mtk';if(!S.level)S.level='sedang';S.kelas={mudah:1,sedang:3,sulit:5}[S.level];
+const save=()=>{try{localStorage.pc_set=JSON.stringify(S)}catch(e){}};
+const best=()=>{try{return JSON.parse(localStorage.pc_best||'{}')}catch(e){return{}}};
+const TH={siang:{n:'🏔 Pegunungan Hijau',sky:0x8fd3ff,fog:0xcdeeff,ground:0x5fb04a,sea:0x1e90d6,sun:0xfff3c4,sand:0xf2dfa0},
+ senja:{n:'🌇 Senja Keemasan',sky:0xff9e6d,fog:0xffcfa0,ground:0x4f9a45,sea:0x2a6fb5,sun:0xffd27a,sand:0xe8c48a},
+ pantai:{n:'🏝 Pantai Tropis',sky:0x5ec8ff,fog:0xb8f0ff,ground:0x7cc65a,sea:0x14b8d9,sun:0xffffff,sand:0xfbe8b0},
+ malam:{n:'🌙 Malam Berbintang',sky:0x0b1a44,fog:0x25386e,ground:0x2f6b45,sea:0x1b3f8f,sun:0xe8eeff,sand:0xb7b08a,dim:.5,stars:1},
+ salju:{n:'❄️ Pegunungan Salju',sky:0xa9d8ff,fog:0xe6f4ff,ground:0xf2f8ff,sea:0x7fc4e8,sun:0xffffff,sand:0xdceaf5,fx:'snow'},
+ ajaib:{n:'✨ Negeri Ajaib',sky:0x7a5cff,fog:0xf0c2ff,ground:0x6fe0b0,sea:0xb061ff,sun:0xfff1a8,sand:0xffd1f0,fx:'sparks'}};
+const COL=[0xe53935,0x1e6fff,0x2ebd4e,0xffc400,0xff7a00,0x9c4dff,0xff5fa8,0x00c2c7],CS=['#e53935','#1e6fff','#2ebd4e','#e0a800','#ff7a00','#9c4dff','#ff5fa8','#00a2a7'],GC=[0xff5252,0x3d8bff,0x2ecc71,0xffb300],GS=['#ff5252','#3d8bff','#2ecc71','#ffb300'],LX=[-9.6,-3.2,3.2,9.6];
+const shF=h=>Math.round(Math.max(76,Math.min(h*.3,140)));
+function fit(e,t){t=t||e;let s=parseFloat(getComputedStyle(t).fontSize)||16;for(let i=0;i<18&&e.scrollHeight>e.clientHeight+1&&s>9;i++){s-=1.5;t.style.fontSize=s+'px'}}
+function rc(n,i){if(n==1)return[0,0,1,1];if(n==2)return[i*.5,0,.5,1];const c=n<=4?2:n<=6?3:4,w=1/c;return[(i%c)*w,Math.floor(i/c)*.5,w,.5]}
+const MP={mtk:'Matematika',ipas:'IPAS',pkn:'Pendidikan Pancasila',pai:'Pendidikan Agama Islam',pjok:'PJOK',sbd:'Seni Budaya',eng:'Bahasa Inggris',bin:'Bahasa Indonesia',mix:'Campuran'},LV={mudah:[1,2],sedang:[3,4],sulit:[5,6]},LK={mudah:1,sedang:3,sulit:5},LB={mudah:'Mudah',sedang:'Sedang',sulit:'Sulit'};
+const L=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c},o||{}));
+const G={cone:new THREE.ConeGeometry(1,1,8),cyl:new THREE.CylinderGeometry(.15,.2,1,6),sph:new THREE.SphereGeometry(1,10,8),box:new THREE.BoxGeometry(1,1,1),pl:new THREE.PlaneGeometry(1,1),tor:new THREE.TorusGeometry(2.7,.35,10,28),circ:new THREE.CircleGeometry(2.7,28)};
+const M={trunk:L(0x7a4b25),leaf:[L(0x2e8b3d),L(0x3da34a),L(0x1f7a46)],mt:[L(0x4c9a58,{flatShading:true}),L(0x3e8a55,{flatShading:true}),L(0x5aa563,{flatShading:true})],snow:L(0xffffff),cloud:new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.92}),river:L(0x2aa7e8),wf:new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.8}),streak:new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.45}),blob:new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22}),trail:new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.35}),cap:new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.5})};
+let state='load',W=innerWidth,H=innerHeight,P=[],demo=null,T=0,endT=0;
+const renderer=new THREE.WebGLRenderer({canvas:$('#c'),antialias:devicePixelRatio<2});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+
+/* ===== DUNIA ===== */
+function makeWorld(th,q){q=q||1;
+ const sc=new THREE.Scene(),items=[];
+ {const c=document.createElement('canvas');c.width=2;c.height=256;const x=c.getContext('2d'),gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#'+new THREE.Color(th.sky).multiplyScalar(.85).getHexString());gr.addColorStop(.5,'#'+new THREE.Color(th.fog).getHexString());gr.addColorStop(1,'#'+new THREE.Color(th.fog).getHexString());x.fillStyle=gr;x.fillRect(0,0,2,256);sc.background=new THREE.CanvasTexture(c)}sc.fog=new THREE.Fog(th.fog,45,220);
+ sc.add(new THREE.HemisphereLight(0xffffff,0x6a8a50,.9*(th.dim||1)));
+ const dl=new THREE.DirectionalLight(th.sun,.9*(th.dim||1));dl.position.set(-30,50,20);sc.add(dl);
+ const sun=new THREE.Mesh(G.sph,new THREE.MeshBasicMaterial({color:th.sun,fog:false}));sun.scale.setScalar(10);sun.position.set(-70,60,-250);sc.add(sun);const hl=new THREE.Mesh(G.sph,new THREE.MeshBasicMaterial({color:th.sun,transparent:true,opacity:.25,fog:false}));hl.scale.setScalar(22);hl.position.copy(sun.position);sc.add(hl);sc.userData.hl=hl;
+ if(th.fx){const n=Math.ceil(260*q),pos=new Float32Array(n*3);for(let i=0;i<n*3;i+=3){pos[i]=R(-45,45);pos[i+1]=R(-6,32);pos[i+2]=R(-90,14)}const gf=new THREE.BufferGeometry();gf.setAttribute('position',new THREE.BufferAttribute(pos,3));const pt=new THREE.Points(gf,new THREE.PointsMaterial({color:th.fx==='snow'?0xffffff:0xfff1a8,size:th.fx==='snow'?3:4.5,sizeAttenuation:false,fog:false,transparent:true,opacity:.9}));pt.frustumCulled=false;sc.add(pt);sc.userData.fx={pos,gf,vy:th.fx==='snow'?-6:2.2}}
+ if(th.stars){const n=220,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const a=Math.random()*6.283,e=.1+Math.random()*1.2,r=400;pos[i*3]=Math.cos(a)*Math.cos(e)*r;pos[i*3+1]=Math.sin(e)*r*.6+20;pos[i*3+2]=-Math.abs(Math.sin(a))*Math.cos(e)*r-60}const gs=new THREE.BufferGeometry();gs.setAttribute('position',new THREE.BufferAttribute(pos,3));sc.add(new THREE.Points(gs,new THREE.PointsMaterial({color:0xffffff,size:2.2,sizeAttenuation:false,fog:false})))}
+ for(let i=0;!th.stars&&i<7;i++){const rb=new THREE.Mesh(new THREE.TorusGeometry(110+i*3.4,1.8,4,40,Math.PI),new THREE.MeshBasicMaterial({color:[0xff4d4d,0xff9d3d,0xffe14d,0x5ed65e,0x4db8ff,0x4d6bff,0xa44dff][i],transparent:true,opacity:.5,fog:false}));rb.position.set(40,-12,-300);sc.add(rb)}
+ const gm=(c,w,l,x,y,z)=>{const m=new THREE.Mesh(G.pl,L(c));m.rotation.x=-Math.PI/2;m.scale.set(w,l,1);m.position.set(x,y,z);sc.add(m);return m};
+ gm(th.ground,300,700,100,-9,-150);sc.userData.sea=gm(th.sea,400,700,-250,-9.2,-150);sc.userData.sc0=new THREE.Color(th.sea);gm(th.sand,10,700,-47,-8.95,-150);
+ const add=(o,x,y,z,sp,k)=>{o.position.set(x,y,z);sc.add(o);const it={o,sp:sp||1,k};items.push(it);return it};
+ const rz=()=>50-Math.random()*300;
+ for(let i=0;i<48*q;i++){const g=new THREE.Group(),t=new THREE.Mesh(G.cyl,M.trunk);t.scale.set(1,3,1);t.position.y=1.5;g.add(t);
+  const f=new THREE.Mesh(i%2?G.cone:G.sph,M.leaf[i%3]);if(i%2){f.scale.set(2.2,5,2.2);f.position.y=5}else{f.scale.setScalar(2.4);f.position.y=4.2}g.add(f);
+  g.scale.setScalar(.7+Math.random()*.7);add(g,Math.random()<.5?R(14,48):-R(14,42),-9,rz(),1,'t')}
+ for(let i=0;i<Math.ceil(12*q);i++){const r=R(25,40),h=R(45,75),g=new THREE.Group(),c=new THREE.Mesh(G.cone,M.mt[i%3]);c.scale.set(r,h,r);c.position.y=h/2;g.add(c);
+  const s=new THREE.Mesh(G.cone,M.snow);s.scale.set(r*.28,h*.28,r*.28);s.position.y=h*.86;g.add(s);
+  if(i%3==0){const w=new THREE.Mesh(G.box,M.wf);w.scale.set(3,h*.5,.8);w.position.set(-r*.65-.4,h*.35,0);w.rotation.z=-Math.atan(r/h);g.add(w);const p=new THREE.Mesh(G.sph,M.wf);p.scale.set(6,.8,6);p.position.set(-r-4,.4,0);g.add(p)}
+  add(g,R(60,130),-9,rz())}
+ for(let i=0;i<Math.ceil(16*q);i++){const h=new THREE.Mesh(G.sph,M.leaf[i%3]);h.scale.set(R(10,24),R(4,9),R(10,24));add(h,R(0,1)?R(26,70):-R(22,44),-9,rz())}
+ for(let i=0;i<Math.ceil(8*q);i++){const g=new THREE.Group();for(const s of[-1,1]){const w=new THREE.Mesh(G.box,M.snow);w.scale.set(1.4,.06,.4);w.position.x=s*.7;w.rotation.z=s*.35;g.add(w)}add(g,R(-40,40),R(8,18),rz(),1.6,'b')}
+ for(let i=0;i<Math.ceil(4*q);i++){const g=new THREE.Group(),b=new THREE.Mesh(G.sph,L([0xff5252,0xffc400,0x3d8bff,0x2ecc71][i%4]));b.scale.set(3,3.6,3);g.add(b);const bk=new THREE.Mesh(G.box,M.trunk);bk.scale.set(1,.8,1);bk.position.y=-4.6;g.add(bk);g.userData.y0=R(12,26);add(g,(R(0,1)?1:-1)*R(25,70),g.userData.y0,rz(),.5,'l')}
+ for(let i=0;i<Math.ceil(4*q);i++){const g=new THREE.Group();for(let j=0;j<3;j++){const c=new THREE.Mesh(G.sph,M.cloud);c.scale.set(R(6,10),R(3,5),R(5,8));c.position.set(j*7-7,Math.random()*2,Math.random()*3);g.add(c)}add(g,(R(0,1)?1:-1)*R(20,45),R(8,16),rz(),1.7)}
+ for(let i=0;i<Math.ceil(5*q);i++){const g=new THREE.Group(),t=new THREE.Mesh(G.cone,L(0xf2efe6));t.scale.set(2.4,12,2.4);t.position.y=6;g.add(t);const bg=new THREE.Group();bg.position.set(0,11.5,2);for(let j=0;j<2;j++){const bl=new THREE.Mesh(G.box,L(j?0xff5252:0xffffff));bl.scale.set(.7,6,.1);bl.rotation.z=j*Math.PI/2;bg.add(bl)}g.add(bg);add(g,(R(0,1)?1:-1)*R(18,38),-9,rz(),1,'w')}
+ for(let i=0;i<Math.ceil(5*q);i++){const g=new THREE.Group(),h=new THREE.Mesh(G.box,L(0x8a4b25));h.scale.set(2.2,.8,5);g.add(h);const s=new THREE.Mesh(G.cone,L(0xffffff));s.scale.set(2.4,5,.15);s.position.y=3.2;g.add(s);add(g,-R(60,150),-9,rz(),1,'s')}
+ for(let i=0;i<Math.ceil(7*q);i++){const g=new THREE.Group(),s=new THREE.Mesh(G.sph,L(th.sand));s.scale.set(R(8,16),2.5,R(8,14));g.add(s);
+  const t=new THREE.Mesh(G.cyl,M.trunk);t.scale.set(1.4,6,1.4);t.position.y=5;g.add(t);const f=new THREE.Mesh(G.sph,M.leaf[1]);f.scale.set(3.5,1.6,3.5);f.position.y=8.5;g.add(f);add(g,-R(60,150),-9.4,rz())}
+ for(let i=0;i<16*q;i++){const g=new THREE.Group();for(let j=0;j<3;j++){const c=new THREE.Mesh(G.sph,M.cloud);c.scale.set(R(5,9),R(3,5),R(4,6));c.position.set(j*6-6,Math.random()*2,Math.random()*3);g.add(c)}add(g,R(-110,110),R(16,36),rz(),.3)}
+ for(let i=0;i<32;i++){const m=new THREE.Mesh(G.box,M.river);m.scale.set(7,.2,11.5);add(m,0,-8.8,50-i*10,1,'r')}
+ for(let i=0;i<16*q;i++){const m=new THREE.Mesh(G.box,M.streak);m.scale.set(.05,.05,7);add(m,R(-14,14),R(-3,7),rz(),2.8)}
+ for(let i=0;i<30*q;i++){const m=new THREE.Mesh(G.box,M.cap);m.scale.set(R(3,9),.08,.6);add(m,-R(52,200),-9.1,rz())}
+ const parts=[];for(let i=0;i<48;i++){const m=new THREE.Mesh(G.sph,new THREE.MeshBasicMaterial({color:0xffffff}));m.scale.setScalar(.3);m.visible=false;sc.add(m);parts.push({m,v:new THREE.Vector3(),t:0})}
+ return{sc,items,parts};
+}
+function updW(w,dt,spd){
+ for(const it of w.items){const o=it.o;o.position.z+=spd*it.sp*dt;if(o.position.z>50)o.position.z-=300;if(it.k==='r')o.position.x=Math.sin(o.position.z*.04)*10;else if(it.k==='w')o.children[1].rotation.z+=dt*1.4;else if(it.k==='s'){o.rotation.z=Math.sin(T*1.5+o.position.x)*.08;o.position.y=-9+Math.sin(T*1.3+o.position.z*.05)*.2}else if(it.k==='t')o.rotation.z=Math.sin(T*1.8+o.position.z*.1)*.04;else if(it.k==='l'){o.position.y=o.userData.y0+Math.sin(T*.8+o.position.x)*1.5;o.rotation.y=T*.3}else if(it.k==='b'){const f=.3+.5*Math.sin(T*10+o.position.x);o.children[0].rotation.z=-f;o.children[1].rotation.z=f}}const hl=w.sc.userData.hl;if(hl)hl.scale.setScalar(22+2.5*Math.sin(T*1.5));
+ const fx=w.sc.userData.fx;if(fx){const p=fx.pos;for(let i=0;i<p.length;i+=3){p[i+1]+=fx.vy*dt;p[i+2]+=spd*.7*dt;p[i]+=Math.sin(T+i)*.02;if(p[i+1]<-7)p[i+1]=32;if(p[i+1]>33)p[i+1]=-6;if(p[i+2]>14)p[i+2]=-90}fx.gf.attributes.position.needsUpdate=true}
+ const se=w.sc.userData.sea;if(se){se.material.color.copy(w.sc.userData.sc0).offsetHSL(0,0,Math.sin(T*1.2)*.03);se.position.y=-9.2+Math.sin(T)*.15}
+ for(const p of w.parts)if(p.t>0){p.t-=dt;p.v.y-=9*dt;p.m.position.addScaledVector(p.v,dt);if(p.t<=0)p.m.visible=false}
+}
+function burst(w,col,pos,n,up){let k=0;for(const p of w.parts){if(p.t>0)continue;if(k++>=n)break;p.m.visible=true;p.m.material.color.set(Array.isArray(col)?col[R(0,col.length-1)]:col);p.m.position.copy(pos);p.v.set((Math.random()-.5)*12,Math.random()*up,(Math.random()-.5)*12);p.t=.9+Math.random()*.5}}
+
+/* ===== PESAWAT & GERBANG ===== */
+function makePlane(col){
+ const g=new THREE.Group(),m=L(col),w=L(0xffffff),d=L(0x2d3748),ps=(geo,mat,x,y,z)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);g.add(o);return o};
+ const b=ps(new THREE.CylinderGeometry(.7,.5,4,12),w,0,0,0);b.rotation.x=Math.PI/2;
+ const n=ps(new THREE.ConeGeometry(.5,1,12),m,0,0,-2.5);n.rotation.x=-Math.PI/2;
+ ps(new THREE.BoxGeometry(7.2,.15,1.5),m,0,-.1,-.2);ps(new THREE.BoxGeometry(2.6,.12,.8),m,0,.1,1.8);ps(new THREE.BoxGeometry(.12,1.1,.9),m,0,.6,1.8);
+ const c=ps(G.sph,L(0x7fd8ff,{transparent:true,opacity:.5}),0,.5,-.6);c.scale.set(.45,.4,.8);ps(G.sph,L(0xffd3a8),0,.62,-.55).scale.setScalar(.2);ps(G.sph,m,0,.74,-.55).scale.set(.22,.12,.22);const sc2=ps(G.box,L(0xffe45e),0,.55,-.2);sc2.scale.set(.1,.05,.9);g.userData.sc=sc2;
+ ps(new THREE.BoxGeometry(7.2,.17,.4),w,0,-.1,-.2);ps(new THREE.TorusGeometry(.52,.12,6,14),d,0,0,-2.1);
+ for(const sx of[-.7,.7]){ps(new THREE.CylinderGeometry(.22,.22,.15,10),d,sx,-.75,-.6).rotation.z=Math.PI/2;ps(G.box,d,sx,-.4,-.6).scale.set(.08,.7,.08)}
+ for(const sx of[-3.6,3.6])ps(G.sph,new THREE.MeshBasicMaterial({color:sx<0?0xff3030:0x30ff60}),sx,-.1,-.2).scale.setScalar(.14);const trm=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.35});g.userData.trm=trm;for(const sx of[-3.5,3.5]){const tr=new THREE.Mesh(G.box,trm);tr.scale.set(.07,.07,14);tr.position.set(sx,-.1,7.2);g.add(tr)}
+ const pr=new THREE.Group();pr.position.z=-3.05;g.add(pr);const dc=new THREE.Mesh(G.circ,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.18,side:THREE.DoubleSide}));dc.scale.setScalar(.42);pr.add(dc);for(const r of [0,Math.PI/2]){const bl=new THREE.Mesh(G.box,d);bl.scale.set(.18,2.6,.05);bl.rotation.z=r;pr.add(bl)}
+ g.userData.prop=pr;g.scale.setScalar(.9);return g;
+}
+function makeGate(k){
+ const g=new THREE.Group(),r=new THREE.Mesh(G.tor,new THREE.MeshLambertMaterial({color:GC[k],emissive:GC[k],emissiveIntensity:.45}));g.add(r);
+ const d=new THREE.Mesh(G.circ,new THREE.MeshBasicMaterial({color:GC[k],transparent:true,opacity:.16,side:THREE.DoubleSide}));g.add(d);
+ const r2=new THREE.Mesh(new THREE.TorusGeometry(2.3,.08,6,24),new THREE.MeshBasicMaterial({color:0xffffff}));g.add(r2);
+ const pi=new THREE.Mesh(G.cyl,new THREE.MeshBasicMaterial({color:GC[k],transparent:true,opacity:.4}));pi.scale.set(1.5,6,1.5);pi.position.y=-6;g.add(pi);
+ const og=new THREE.Group();for(let a=0;a<6;a++){const sp=new THREE.Mesh(G.sph,new THREE.MeshBasicMaterial({color:0xffffff}));sp.scale.setScalar(.22);sp.position.set(Math.cos(a*1.0472)*2.7,Math.sin(a*1.0472)*2.7,0);og.add(sp)}g.add(og);
+ const cv=document.createElement('canvas');cv.width=cv.height=512;const tex=new THREE.CanvasTexture(cv);tex.anisotropy=8;
+ const lb=new THREE.Mesh(G.pl,new THREE.MeshBasicMaterial({map:tex,transparent:true,fog:false}));lb.scale.set(6.1,6.1,1);lb.position.y=6.1;g.add(lb);
+ return{g,cv,tex,k,lb,og};
+}
+function setGate(ga,val){const c=ga.cv.getContext('2d'),Z=512,col=GS[ga.k];c.clearRect(0,0,Z,Z);
+ const rr=(x,y,w,h,r)=>{c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()};
+ rr(8,8,Z-16,Z-16,48);c.fillStyle='#0b2a4a';c.fill();rr(20,20,Z-40,Z-40,38);c.fillStyle='#fff';c.fill();
+ c.save();rr(20,20,Z-40,Z-40,38);c.clip();c.fillStyle=col;c.fillRect(20,20,Z-40,190);c.restore();
+ c.textAlign='center';c.textBaseline='middle';c.font='900 170px Arial';c.lineWidth=14;c.lineJoin='round';c.strokeStyle='#0b2a4a';c.strokeText('ABCD'[ga.k],Z/2,118);c.fillStyle='#fff';c.fillText('ABCD'[ga.k],Z/2,118);
+ let s=110,ln;for(;s>=30;s-=6){c.font='bold '+s+'px Arial';ln=wrap(c,val,Z-70);if(ln.length*s*1.12<=270&&ln.every(q=>c.measureText(q).width<=Z-70))break}
+ c.fillStyle='#0b2a4a';ln.forEach((q,i)=>c.fillText(q,Z/2,355+(i-(ln.length-1)/2)*s*1.12));ga.tex.needsUpdate=true}
+function setGate0(ga,val){const c=ga.cv.getContext('2d');c.clearRect(0,0,256,256);c.fillStyle=GS[ga.k];c.strokeStyle='#fff';c.lineWidth=10;
+ c.beginPath();c.moveTo(30,10);c.lineTo(226,10);c.quadraticCurveTo(246,10,246,30);c.lineTo(246,226);c.quadraticCurveTo(246,246,226,246);c.lineTo(30,246);c.quadraticCurveTo(10,246,10,226);c.lineTo(10,30);c.quadraticCurveTo(10,10,30,10);c.fill();c.stroke();
+ c.fillStyle='#fff';c.textAlign='center';c.font='bold 100px Arial';c.fillText('ABCD'[ga.k],128,102);
+ let s=64,ln;for(;s>=22;s-=4){c.font='bold '+s+'px Arial';ln=wrap(c,val,214);if(ln.length*s*1.12<=112&&ln.every(q=>c.measureText(q).width<=214))break}
+ c.fillStyle='#fff7c2';ln.forEach((q,i)=>c.fillText(q,128,186+(i-(ln.length-1)/2)*s*1.12+s*.33));ga.tex.needsUpdate=true}
+function wrap(c,t,mw){const w=t.split(' '),o=[];let l='';for(const x of w){const n=l?l+' '+x:x;if(c.measureText(n).width>mw&&l){o.push(l);l=x}else l=n}o.push(l);return o}
+
+function newPlayer(i,th,q){
+ const w=makeWorld(th,q),pl=makePlane(COL[i]);w.sc.add(pl);
+ const bl=new THREE.Mesh(G.circ,M.blob);bl.rotation.x=-Math.PI/2;bl.scale.set(.8,.4,1);bl.position.y=-8.9;w.sc.add(bl);
+ const gg=new THREE.Group(),ga=[];gg.visible=false;w.sc.add(gg);const sh=new THREE.Mesh(G.tor,new THREE.MeshBasicMaterial({color:0xfff2a0,transparent:true,opacity:0}));w.sc.add(sh);for(let k=0;k<4;k++){const x=makeGate(k);x.g.position.x=LX[k];gg.add(x.g);ga.push(x)}
+ return{i,w,pl,bl,gg,ga,sh,cb:0,intro:1,x:0,vx:0,l:0,r:0,score:0,ok:0,bad:0,qn:0,q:null,ph:'wait',tm:1.4,gz:-120,roll:0,shake:0,done:false,cam:new THREE.PerspectiveCamera(68,1,.1,500),seen:new Set()};
+}
+
+/* ===== SOAL ===== */
+const IB=`1|Hewan yang berkembang biak dengan bertelur disebut ...|Ovipar|Vivipar|Herbivora|Karnivora
+1|Bagian tumbuhan yang menyerap air dari tanah adalah ...|Akar|Daun|Bunga|Batang
+1|Alat indra untuk melihat adalah ...|Mata|Telinga|Hidung|Lidah
+1|Alat indra pengecap adalah ...|Lidah|Kulit|Mata|Telinga
+1|Matahari terbit dari arah ...|Timur|Barat|Utara|Selatan
+1|Hewan pemakan tumbuhan disebut ...|Herbivora|Karnivora|Omnivora|Insektivora
+1|Benda yang ditarik oleh magnet adalah ...|Paku besi|Plastik|Kayu|Kertas
+1|Hewan yang bernapas dengan insang adalah ...|Ikan|Ayam|Kucing|Sapi
+1|Lambang negara Indonesia adalah ...|Garuda Pancasila|Elang Jawa|Harimau|Banteng
+1|Tempat tinggal kita, Bumi, adalah sebuah ...|Planet|Bintang|Bulan|Awan
+1|Yang termasuk benda tak hidup adalah ...|Batu|Jamur|Kucing|Lumut
+1|Sila pertama Pancasila adalah ...|Ketuhanan Yang Maha Esa|Persatuan Indonesia|Keadilan sosial|Kemanusiaan yang adil dan beradab
+2|Wujud benda yang bentuknya tetap adalah ...|Padat|Cair|Gas|Uap
+2|Alat untuk mendengar bunyi adalah ...|Telinga|Hidung|Mata|Kulit
+2|Warna bendera Indonesia adalah ...|Merah putih|Merah biru|Putih hijau|Kuning hijau
+2|Agar tumbuh, tumbuhan membutuhkan ...|Air dan cahaya|Plastik|Besi|Pasir saja
+2|Anak ayam keluar dari ...|Telur|Rahim|Kepompong|Sarang
+2|Tulang pada tubuh berfungsi sebagai ...|Penopang tubuh|Pencerna makanan|Pemompa darah|Alat bernapas
+3|Panas matahari membuat air laut menguap, disebut ...|Evaporasi|Kondensasi|Presipitasi|Infiltrasi
+3|Tumbuhan hijau membuat makanan dengan cahaya matahari, disebut ...|Fotosintesis|Respirasi|Evaporasi|Metamorfosis
+3|Air membeku menjadi es pada suhu ...|0 °C|100 °C|50 °C|25 °C
+3|Air mendidih pada suhu ... (tekanan normal)|100 °C|0 °C|50 °C|37 °C
+3|Hewan yang mengalami metamorfosis sempurna adalah ...|Kupu-kupu|Belalang|Kecoa|Capung
+3|Organ yang memompa darah ke seluruh tubuh adalah ...|Jantung|Paru-paru|Ginjal|Hati
+3|Organ untuk bernapas adalah ...|Paru-paru|Jantung|Lambung|Usus
+3|Sumber energi utama di Bumi adalah ...|Matahari|Bulan|Angin|Batu bara
+3|Ibu kota Provinsi Jawa Timur adalah ...|Surabaya|Malang|Semarang|Bandung
+3|Gaya yang membuat benda jatuh ke bawah adalah ...|Gravitasi|Gaya magnet|Gaya gesek|Gaya pegas
+3|Alat untuk mengukur suhu adalah ...|Termometer|Barometer|Higrometer|Penggaris
+3|Hewan pemakan tumbuhan dan daging disebut ...|Omnivora|Herbivora|Karnivora|Insektivora
+3|Semboyan negara Indonesia adalah ...|Bhinneka Tunggal Ika|Tut Wuri Handayani|Garuda Pancasila|Merdeka atau mati
+3|Bapak Pendidikan Nasional adalah ...|Ki Hajar Dewantara|Ir. Soekarno|R.A. Kartini|Moh. Hatta
+3|Proklamasi kemerdekaan Indonesia dibacakan pada ...|17 Agustus 1945|17 Agustus 1954|1 Juni 1945|28 Oktober 1928
+4|Rumah Gadang berasal dari ...|Sumatera Barat|Jawa Tengah|Papua|Bali
+4|Tari Kecak berasal dari ...|Bali|Aceh|Papua|Sumatera Utara
+4|Rantai makanan selalu diawali oleh ...|Produsen|Konsumen tingkat 1|Pengurai|Konsumen tingkat 2
+4|Contoh organisme pengurai adalah ...|Jamur|Rumput|Belalang|Elang
+4|Matahari menghasilkan energi berupa ...|Cahaya dan panas|Bunyi|Magnet|Suara
+4|Perubahan wujud padat menjadi cair disebut ...|Mencair|Membeku|Menguap|Menyublim
+4|Alat untuk melihat benda yang sangat kecil adalah ...|Mikroskop|Teleskop|Periskop|Kaca spion
+4|Planet terdekat dengan Matahari adalah ...|Merkurius|Venus|Bumi|Mars
+4|Planet terbesar di tata surya adalah ...|Jupiter|Saturnus|Bumi|Neptunus
+4|Bulan mengelilingi ...|Bumi|Matahari|Mars|Venus
+4|Sumber daya alam yang tidak dapat diperbarui adalah ...|Minyak bumi|Air|Hutan|Angin
+4|Sumber energi terbarukan adalah ...|Angin|Batu bara|Minyak bumi|Gas alam
+4|Tulang yang melindungi otak adalah ...|Tengkorak|Tulang rusuk|Tulang panggul|Tulang belakang
+4|Zat hijau daun disebut ...|Klorofil|Hemoglobin|Melanin|Stomata
+4|Benda yang dapat menghantarkan listrik disebut ...|Konduktor|Isolator|Magnet|Resistor
+5|Sendi pada siku termasuk sendi ...|Engsel|Peluru|Pelana|Putar
+5|Pencernaan makanan dimulai dari ...|Mulut|Lambung|Usus halus|Kerongkongan
+5|Zat makanan sumber tenaga utama adalah ...|Karbohidrat|Vitamin|Mineral|Air
+5|Zat makanan untuk membangun tubuh adalah ...|Protein|Karbohidrat|Lemak|Vitamin
+5|Gerhana matahari terjadi saat ... berada di antara Matahari dan Bumi|Bulan|Mars|Venus|Jupiter
+5|Satuan gaya adalah ...|Newton|Joule|Watt|Pascal
+5|Bunyi merambat paling cepat melalui ...|Zat padat|Zat cair|Udara|Ruang hampa
+5|Gaya yang menghambat gerak benda yang bersentuhan adalah ...|Gaya gesek|Gravitasi|Gaya magnet|Gaya pegas
+5|Hubungan lebah dan bunga yang saling menguntungkan disebut ...|Mutualisme|Parasitisme|Komensalisme|Kompetisi
+5|Cagar alam termasuk konservasi ...|In situ|Ex situ|Buatan|Rekayasa
+5|Rotasi Bumi menyebabkan ...|Pergantian siang dan malam|Pergantian musim|Gerhana|Pasang surut
+6|Bagian sel yang mengatur kegiatan sel adalah ...|Inti sel|Dinding sel|Vakuola|Sitoplasma
+6|Penyerbukan adalah jatuhnya serbuk sari ke ...|Kepala putik|Tangkai sari|Mahkota|Kelopak
+6|Hewan yang mengubah warna kulit untuk menyamar adalah ...|Bunglon|Kucing|Kerbau|Ayam
+6|Pembangkit listrik tenaga air disebut ...|PLTA|PLTU|PLTS|PLTN
+6|Energi pada benda diam di tempat tinggi adalah energi ...|Potensial|Kinetik|Kalor|Bunyi
+6|Energi yang dimiliki benda bergerak adalah energi ...|Kinetik|Potensial|Kimia|Kalor
+6|Pemanasan global disebabkan meningkatnya gas ...|Rumah kaca|Oksigen|Nitrogen|Helium
+6|Sumpah Pemuda diikrarkan pada ...|28 Oktober 1928|17 Agustus 1945|20 Mei 1908|1 Juni 1945
+6|Kuala Lumpur adalah ibu kota negara ...|Malaysia|Thailand|Filipina|Vietnam
+6|Revolusi Bumi menyebabkan ...|Perubahan musim|Pergantian siang dan malam|Pasang surut|Gerhana
+1|Hewan yang suka makan wortel adalah ...|Kelinci|Singa|Hiu|Elang
+1|Kita bernapas menggunakan ...|Hidung|Telinga|Mata|Kaki
+1|Alat indra peraba adalah ...|Kulit|Mata|Lidah|Telinga
+1|Siang hari terang karena ada ...|Matahari|Bulan|Bintang|Awan
+1|Sebelum makan kita sebaiknya ... tangan|Mencuci|Mengotori|Menggigit|Melempar
+1|Hewan yang dapat terbang adalah ...|Burung|Ikan|Sapi|Kucing
+1|Gigi berfungsi untuk ...|Mengunyah makanan|Mendengar|Melihat|Mencium
+1|Yang termasuk hewan peliharaan adalah ...|Kucing|Harimau|Singa|Buaya
+1|Hewan yang berkaki dua adalah ...|Ayam|Sapi|Kucing|Kambing
+2|Hujan turun dari ...|Awan|Tanah|Laut|Gunung
+2|Benda yang dapat memantulkan cahaya adalah ...|Cermin|Kain|Kayu|Tanah liat
+2|Hewan yang hidup di dua alam adalah ...|Katak|Ikan|Ayam|Sapi
+2|Makanan yang banyak mengandung vitamin adalah ...|Buah dan sayur|Permen|Es krim|Keripik
+2|Tumbuhan menghasilkan udara yang kita hirup, yaitu ...|Oksigen|Karbon dioksida|Asap|Debu
+2|Bunyi dihasilkan oleh benda yang ...|Bergetar|Diam|Basah|Dingin
+2|Matahari terbenam di arah ...|Barat|Timur|Utara|Selatan
+2|Hari kemerdekaan Indonesia diperingati setiap tanggal ...|17 Agustus|1 Juni|10 November|21 April
+3|Hewan yang melahirkan anak disebut ...|Vivipar|Ovipar|Herbivora|Karnivora
+3|Contoh hewan vivipar adalah ...|Kucing|Ayam|Bebek|Penyu
+3|Bagian tumbuhan tempat fotosintesis berlangsung adalah ...|Daun|Akar|Batang|Buah
+3|Uap air berubah menjadi titik air di awan, disebut ...|Kondensasi|Evaporasi|Presipitasi|Infiltrasi
+3|Turunnya hujan dari awan disebut ...|Presipitasi|Evaporasi|Kondensasi|Transpirasi
+3|Benda yang tidak tembus cahaya disebut ...|Buram|Bening|Transparan|Tembus pandang
+3|Pekerjaan petani adalah ...|Bercocok tanam|Mengajar|Berdagang|Menjahit
+3|Tempat berlangsungnya jual beli adalah ...|Pasar|Sawah|Hutan|Pantai
+3|Kota Jakarta terletak di pulau ...|Jawa|Sumatra|Bali|Papua
+3|Ibu kota Provinsi Sumatera Utara adalah ...|Medan|Padang|Palembang|Pekanbaru
+3|Contoh perubahan yang bisa kembali ke bentuk semula adalah ...|Es mencair lalu membeku|Kertas dibakar|Kayu dibakar|Telur digoreng
+4|Alat gerak aktif pada manusia adalah ...|Otot|Tulang|Sendi|Kulit
+4|Alat untuk menimbang massa benda adalah ...|Neraca|Termometer|Penggaris|Gelas ukur
+4|Satuan massa dalam SI adalah ...|Kilogram|Meter|Liter|Newton
+4|Pelangi terjadi karena cahaya matahari diuraikan oleh ...|Tetes air hujan|Awan hitam|Angin|Bulan
+4|Warna pelangi yang paling atas adalah ...|Merah|Ungu|Hijau|Biru
+4|Rumah adat Honai berasal dari ...|Papua|Aceh|Bali|Jawa
+4|Senjata tradisional rencong berasal dari ...|Aceh|Papua|Bali|Jawa Barat
+4|Alat musik angklung berasal dari ...|Jawa Barat|Bali|Papua|Aceh
+4|Candi Borobudur terletak di ...|Magelang, Jawa Tengah|Sleman, Yogyakarta|Gianyar, Bali|Medan, Sumatera Utara
+4|Lambang sila ketiga Pancasila adalah ...|Pohon beringin|Rantai|Kepala banteng|Padi dan kapas
+4|Lambang sila pertama Pancasila adalah ...|Bintang|Rantai|Pohon beringin|Kepala banteng
+4|Magnet memiliki ... kutub|2|1|3|4
+4|Kutub senama pada magnet akan ...|Tolak-menolak|Tarik-menarik|Menyatu|Meleleh
+4|Benda yang tidak ditarik magnet adalah ...|Plastik|Paku|Baja|Kawat besi
+4|Bunyi tidak dapat merambat di ...|Ruang hampa|Udara|Air|Besi
+5|Hewan yang berkembang biak dengan bertunas adalah ...|Hydra|Kucing|Ayam|Ikan
+5|Perpindahan panas pada benda padat disebut ...|Konduksi|Konveksi|Radiasi|Evaporasi
+5|Perpindahan panas melalui zat cair atau gas disebut ...|Konveksi|Konduksi|Radiasi|Kondensasi
+5|Panas matahari sampai ke Bumi secara ...|Radiasi|Konduksi|Konveksi|Evaporasi
+5|Organ pencernaan yang menyerap sari makanan adalah ...|Usus halus|Usus besar|Kerongkongan|Lambung
+5|Organ yang menyaring darah dan membuang zat sisa adalah ...|Ginjal|Jantung|Lambung|Paru-paru
+5|Sel darah merah berfungsi mengangkut ...|Oksigen|Antibodi|Makanan|Hormon
+5|Pembuluh darah yang membawa darah keluar dari jantung adalah ...|Arteri|Vena|Kapiler|Limfa
+5|Makhluk hidup yang membuat makanan sendiri disebut ...|Autotrof|Heterotrof|Dekomposer|Parasit
+5|Hewan pemakan bangkai contohnya ...|Burung nasar|Sapi|Kelinci|Kambing
+5|Batuan beku terbentuk dari ...|Magma yang membeku|Endapan lumpur|Fosil|Batuan yang lapuk
+5|Bencana akibat pergeseran lempeng bumi adalah ...|Gempa bumi|Banjir|Kekeringan|Puting beliung
+5|Proklamator kemerdekaan Indonesia adalah ...|Soekarno dan Hatta|Soekarno dan Sjahrir|Hatta dan Sudirman|Diponegoro dan Hatta
+5|Budi Utomo berdiri pada tahun ...|1908|1928|1945|1900
+5|Mata uang negara Jepang adalah ...|Yen|Won|Ringgit|Baht
+5|Benua terluas di dunia adalah ...|Asia|Afrika|Eropa|Amerika
+5|Samudra terluas di dunia adalah ...|Pasifik|Atlantik|Hindia|Arktik
+6|Sifat yang diturunkan dari induk ke keturunannya disebut ...|Pewarisan sifat|Adaptasi|Metamorfosis|Fotosintesis
+6|Pusat sistem saraf manusia adalah ...|Otak|Jantung|Lambung|Ginjal
+6|Planet yang dijuluki planet merah adalah ...|Mars|Venus|Jupiter|Merkurius
+6|Planet bercincin yang terkenal adalah ...|Saturnus|Mars|Merkurius|Venus
+6|Galaksi tempat tata surya berada adalah ...|Bima Sakti|Andromeda|Sombrero|Pinwheel
+6|Lapisan atmosfer tempat terjadinya cuaca adalah ...|Troposfer|Stratosfer|Mesosfer|Eksosfer
+6|Lapisan ozon terdapat di lapisan ...|Stratosfer|Troposfer|Mesosfer|Termosfer
+6|Gas terbanyak di atmosfer Bumi adalah ...|Nitrogen|Oksigen|Karbon dioksida|Hidrogen
+6|Perubahan yang menghasilkan zat baru disebut perubahan ...|Kimia|Fisik|Bentuk|Wujud
+6|Contoh perubahan kimia adalah ...|Besi berkarat|Es mencair|Air menguap|Gula larut
+6|Bangsa yang paling lama menjajah Indonesia adalah ...|Belanda|Jepang|Portugis|Inggris
+6|Hari Pahlawan diperingati setiap tanggal ...|10 November|17 Agustus|2 Mei|21 April
+6|Hari Kartini diperingati setiap tanggal ...|21 April|10 November|2 Mei|28 Oktober
+6|Negara anggota ASEAN adalah ...|Singapura|Jepang|India|Australia
+6|Ibu kota Jepang adalah ...|Tokyo|Beijing|Seoul|Bangkok
+6|Candi Prambanan bercorak ...|Hindu|Buddha|Islam|Kristen
+6|Candi Borobudur bercorak ...|Buddha|Hindu|Islam|Konghucu
+6|Kerajaan Hindu tertua di Indonesia adalah ...|Kutai|Majapahit|Sriwijaya|Mataram
+1|Hewan yang melompat dan berkaki empat adalah ...|Katak|Ular|Ikan|Burung
+1|Bagian tubuh untuk mencium bau adalah ...|Hidung|Mata|Telinga|Lidah
+1|Tumbuhan membutuhkan ... agar tidak layu|Air|Plastik|Batu|Besi
+1|Hewan yang hidup di air adalah ...|Ikan|Kucing|Ayam|Kambing
+1|Benda yang terasa panas adalah ...|Api|Es|Air dingin|Salju
+1|Benda yang terasa dingin adalah ...|Es|Api|Kompor|Matahari
+2|Hewan pemakan daging disebut ...|Karnivora|Herbivora|Omnivora|Insektivora
+2|Kupu-kupu berasal dari ... yang berubah bentuk|Kepompong|Telur ayam|Biji|Akar
+2|Bagian bunga yang berwarna-warni adalah ...|Mahkota|Akar|Batang|Daun
+2|Benda yang dapat terapung di air adalah ...|Gabus|Batu|Besi|Koin
+2|Musim di Indonesia ada dua, yaitu hujan dan ...|Kemarau|Salju|Gugur|Semi
+2|Makhluk hidup memerlukan ... untuk bernapas|Udara|Batu|Pasir|Kayu
+3|Perubahan wujud cair menjadi gas disebut ...|Menguap|Membeku|Mencair|Mengembun
+3|Perubahan wujud gas menjadi cair disebut ...|Mengembun|Menguap|Membeku|Menyublim
+3|Benda yang menghantarkan panas dengan baik adalah ...|Logam|Kayu|Karet|Plastik
+3|Hewan yang hidup di darat dan di air disebut ...|Amfibi|Reptil|Mamalia|Unggas
+3|Contoh hewan reptil adalah ...|Kadal|Katak|Ikan|Ayam
+3|Contoh mamalia yang hidup di laut adalah ...|Paus|Hiu|Tuna|Kakap
+3|Cahaya merambat dalam garis ...|Lurus|Lengkung|Zigzag|Putus-putus
+3|Bayangan terbentuk jika cahaya terhalang benda ...|Buram|Bening|Transparan|Kaca bening
+4|Fotosintesis menghasilkan makanan dan gas ...|Oksigen|Karbon dioksida|Nitrogen|Hidrogen
+4|Cermin datar membentuk bayangan ...|Sama besar dan tegak|Lebih besar|Lebih kecil|Terbalik
+4|Energi untuk menyalakan lampu adalah energi ...|Listrik|Angin|Pegas|Otot
+4|Energi yang tersimpan di dalam baterai adalah energi ...|Kimia|Gerak|Bunyi|Panas
+4|Gunung berapi mengeluarkan ...|Magma|Air tawar|Es|Pasir
+4|Beruang kutub beradaptasi dengan hidup di daerah ...|Dingin|Gurun|Hutan hujan|Pantai
+4|Unta menyimpan cadangan makanan di ...|Punuk|Perut|Kaki|Ekor
+5|Gerak tumbuhan putri malu saat disentuh disebut gerak ...|Nasti|Tropisme|Refleks|Otot
+5|Bagian bunga yang menghasilkan serbuk sari adalah ...|Benang sari|Putik|Mahkota|Kelopak
+5|Bagian bunga yang menerima serbuk sari adalah ...|Putik|Benang sari|Tangkai|Daun
+5|Hubungan pemangsa dan mangsa contohnya ...|Elang dan tikus|Lebah dan bunga|Kutu dan kucing|Benalu dan pohon
+5|Tanah yang paling subur adalah tanah ...|Humus|Pasir|Kapur|Liat
+5|Lapisan Bumi paling luar adalah ...|Kerak bumi|Mantel|Inti luar|Inti dalam
+5|Benda angkasa yang memiliki cahaya sendiri adalah ...|Matahari|Bulan|Bumi|Mars
+5|Pasang surut air laut dipengaruhi gaya tarik ...|Bulan|Mars|Venus|Jupiter
+5|Alat untuk mengukur kecepatan angin adalah ...|Anemometer|Barometer|Termometer|Higrometer
+6|Pertemuan sel telur dan sperma disebut ...|Fertilisasi|Fotosintesis|Metamorfosis|Adaptasi
+6|Gabungan beberapa rantai makanan disebut ...|Jaring-jaring makanan|Piramida|Habitat|Populasi
+6|Komponen ekosistem yang tidak hidup disebut ...|Abiotik|Biotik|Produsen|Konsumen
+6|Komponen ekosistem yang hidup disebut ...|Biotik|Abiotik|Cuaca|Iklim
+6|Gas rumah kaca utama adalah ...|Karbon dioksida|Oksigen|Helium|Nitrogen
+6|Energi alternatif dari sinar matahari disebut energi ...|Surya|Nuklir|Fosil|Panas bumi
+6|Rangkaian listrik yang cabangnya punya jalur sendiri disebut ...|Rangkaian paralel|Rangkaian seri|Rangkaian terbuka|Hubungan pendek
+6|Rangkaian listrik dengan satu jalur disebut ...|Rangkaian seri|Rangkaian paralel|Rangkaian campuran|Rangkaian terbuka
+1|Hewan yang menghasilkan susu untuk anaknya adalah ...|Sapi|Ayam|Ikan|Katak
+1|Bagian tubuh untuk mendengar adalah ...|Telinga|Hidung|Lidah|Mata
+1|Tanaman yang buahnya bisa dimakan adalah ...|Mangga|Rumput|Lumut|Paku
+1|Air minum yang aman adalah air ...|Matang|Selokan|Genangan|Comberan
+2|Ulat berubah menjadi ...|Kupu-kupu|Kucing|Ikan|Burung
+2|Alat untuk mengukur panjang adalah ...|Penggaris|Termometer|Timbangan|Gelas ukur
+2|Hewan bertelur yang dapat terbang adalah ...|Burung|Sapi|Ikan|Kucing
+3|Air berubah menjadi uap karena panas disebut ...|Penguapan|Pembekuan|Pengembunan|Pelapukan
+3|Hewan bertulang belakang disebut ...|Vertebrata|Invertebrata|Parasit|Produsen
+3|Hewan tanpa tulang belakang disebut ...|Invertebrata|Vertebrata|Mamalia|Reptil
+3|Contoh invertebrata adalah ...|Cacing|Kucing|Sapi|Ayam
+4|Gaya yang timbul saat dua benda bergesekan disebut gaya ...|Gesek|Magnet|Gravitasi|Pegas
+4|Pesawat sederhana untuk mengungkit adalah ...|Tuas|Roda|Katrol|Sekrup
+4|Contoh hewan yang berkembang biak dengan membelah diri adalah ...|Amoeba|Kucing|Ayam|Ikan
+5|Pesawat sederhana untuk menimba air dari sumur adalah ...|Katrol|Tuas|Bidang miring|Baji
+5|Bagian sel tumbuhan yang tidak dimiliki sel hewan adalah ...|Dinding sel|Inti sel|Sitoplasma|Membran sel
+5|Tempat pembuatan makanan pada sel tumbuhan adalah ...|Kloroplas|Inti sel|Vakuola|Dinding sel
+5|Hewan pemakan segala adalah ...|Ayam|Sapi|Harimau|Kelinci
+6|Materi genetik berada di dalam ...|Inti sel|Dinding sel|Vakuola|Sitoplasma
+6|Perbuatan yang dapat menyebabkan banjir adalah ...|Membuang sampah ke sungai|Menanam pohon|Membuat biopori|Reboisasi
+6|Cara mengurangi sampah plastik adalah ...|Membawa tas belanja sendiri|Membakar plastik|Membuang ke sungai|Menimbun di halaman
+6|Gerhana bulan terjadi saat ... berada di antara Matahari dan Bulan|Bumi|Mars|Venus|Jupiter
+6|Pembangkit listrik tenaga angin menggunakan ...|Kincir angin|Bendungan|Panel surya|Reaktor
+1|Ulat banyak memakan ...|Daun|Daging|Batu|Plastik
+2|Alat untuk melihat bintang adalah ...|Teleskop|Mikroskop|Termometer|Periskop
+2|Tumbuhan menyerap air dari tanah melalui ...|Akar|Daun|Bunga|Buah
+3|Contoh benda yang menyerap air adalah ...|Spons|Batu|Kaca|Logam
+3|Kayu dibakar menjadi arang adalah perubahan ...|Kimia|Fisik|Wujud|Ukuran
+3|Bumi berotasi satu kali putaran selama ... jam|24|12|365|30
+4|Bumi mengelilingi Matahari selama kira-kira ... hari|365|30|24|7
+4|Bulan mengelilingi Bumi selama kira-kira ... hari|30|7|365|24
+4|Anak katak yang hidup di air disebut ...|Kecebong|Larva ulat|Pupa|Nimfa
+5|Metamorfosis tidak sempurna terjadi pada ...|Belalang|Kupu-kupu|Nyamuk|Lalat
+5|Tahap metamorfosis sempurna: telur, larva, pupa, dan ...|Dewasa|Nimfa|Kecebong|Tunas
+5|Panas berpindah dari benda panas ke benda ...|Dingin|Panas|Beku|Hilang
+6|Tumbuhan menyerap gas ... saat fotosintesis|Karbon dioksida|Oksigen|Nitrogen|Helium
+6|Hewan nokturnal beraktivitas pada ...|Malam hari|Pagi hari|Siang hari|Sore hari
+6|Contoh hewan nokturnal adalah ...|Kelelawar|Ayam|Sapi|Kupu-kupu`.trim().split('\n').map(l=>l.split('|'));
+function gI(k){const lo=k<=2?1:k<=4?3:5,a=IB.filter(x=>+x[0]>=lo&&+x[0]<=lo+1),x=a[R(0,a.length-1)],o=x.slice(2).sort(()=>Math.random()-.5);return{t:x[1],o,c:o.indexOf(x[2]),ans:x[2],m:'ipas'}}
+const PB=`1|Bendera Indonesia disebut ...|Sang Merah Putih|Garuda Pancasila|Indonesia Raya|Bhinneka Tunggal Ika
+1|Lagu kebangsaan Indonesia adalah ...|Indonesia Raya|Garuda Pancasila|Halo-Halo Bandung|Rayuan Pulau Kelapa
+1|Pancasila memiliki ... sila|5|3|4|10
+1|Bergotong royong berarti ...|Bekerja sama|Bekerja sendiri|Bermain saja|Berkelahi
+1|Jika teman terjatuh, kita harus ...|Menolong|Menertawakan|Meninggalkan|Memarahi
+1|Sikap yang baik kepada orang tua adalah ...|Hormat|Membantah|Berteriak|Mengabaikan
+1|Mengucapkan terima kasih saat dibantu adalah sikap ...|Sopan|Sombong|Malas|Marah
+1|Membuang sampah pada tempatnya adalah sikap ...|Peduli kebersihan|Malas|Boros|Egois
+1|Mengembalikan barang temuan kepada pemiliknya adalah sikap ...|Jujur|Pelit|Malas|Curang
+1|Kita berbagi makanan dengan teman, ini sikap ...|Dermawan|Pelit|Serakah|Iri
+1|Saat upacara bendera kita harus ...|Hormat dan tertib|Bercanda|Berlari|Berbicara keras
+1|Presiden pertama Indonesia adalah ...|Ir. Soekarno|Soeharto|B.J. Habibie|Moh. Hatta
+1|Kita harus menyayangi teman walaupun berbeda ...|Suku dan agama|Nama saja|Tidak ada|Hanya tinggi badan
+2|Sila kedua Pancasila adalah ...|Kemanusiaan yang adil dan beradab|Ketuhanan Yang Maha Esa|Persatuan Indonesia|Keadilan sosial
+2|Sila ketiga Pancasila adalah ...|Persatuan Indonesia|Ketuhanan Yang Maha Esa|Kemanusiaan yang adil dan beradab|Kerakyatan yang dipimpin oleh hikmat kebijaksanaan
+2|Sila kelima Pancasila adalah ...|Keadilan sosial bagi seluruh rakyat Indonesia|Persatuan Indonesia|Ketuhanan Yang Maha Esa|Kemanusiaan yang adil dan beradab
+2|Menghargai teman yang berbeda agama disebut ...|Toleransi|Egois|Iri hati|Sombong
+2|Memilih ketua kelas dilakukan dengan ...|Musyawarah|Memaksa|Mengancam|Menyuruh
+2|Kewajiban siswa di sekolah adalah ...|Belajar dengan rajin|Bolos|Mengejek teman|Membuang sampah sembarangan
+2|Hak anak adalah ...|Mendapat pendidikan|Bekerja berat|Berkelahi|Membolos
+2|Bhinneka Tunggal Ika berarti ...|Berbeda-beda tetapi tetap satu|Satu untuk semua|Bersatu kita teguh|Maju terus
+2|Contoh gotong royong adalah ...|Kerja bakti membersihkan selokan|Bermain sendiri|Tidur siang|Menonton TV
+2|Jika berbeda pendapat, kita harus ...|Saling menghargai|Saling memukul|Saling mengejek|Saling menjauh
+2|Wakil presiden pertama Indonesia adalah ...|Moh. Hatta|Ir. Soekarno|Soeharto|Adam Malik
+2|Warna bendera Indonesia dari atas ke bawah adalah ...|Merah, putih|Putih, merah|Merah, biru|Putih, biru
+2|Patuh pada aturan sekolah membuat sekolah menjadi ...|Tertib|Ribut|Kotor|Berantakan
+3|Pancasila adalah ... negara Indonesia|Dasar|Bendera|Lagu|Mata uang
+3|Lambang sila kedua Pancasila adalah ...|Rantai|Bintang|Pohon beringin|Kepala banteng
+3|Lambang sila keempat Pancasila adalah ...|Kepala banteng|Padi dan kapas|Rantai|Bintang
+3|Lambang sila kelima Pancasila adalah ...|Padi dan kapas|Pohon beringin|Rantai|Bintang
+3|Hasil keputusan musyawarah harus ...|Dilaksanakan bersama|Diabaikan|Dilawan|Ditolak sendiri
+3|Contoh hak warga negara adalah ...|Mendapat pendidikan|Membayar pajak|Menaati hukum|Membela negara
+3|Tata tertib dibuat agar kehidupan menjadi ...|Teratur dan tertib|Kacau|Sulit|Bebas semaunya
+3|Suku bangsa terbanyak di Indonesia adalah suku ...|Jawa|Sunda|Batak|Bugis
+3|Indonesia memiliki banyak pulau sehingga disebut negara ...|Kepulauan|Daratan|Gurun|Salju
+3|Sumpah Pemuda berbunyi satu tanah air, satu bangsa, dan satu ...|Bahasa|Agama|Suku|Budaya
+3|Bahasa persatuan bangsa Indonesia adalah ...|Bahasa Indonesia|Bahasa Jawa|Bahasa Inggris|Bahasa Sunda
+3|Kita harus menaati peraturan lalu lintas, ini merupakan ...|Kewajiban|Hak|Hadiah|Pilihan
+3|Sikap saling membantu antar tetangga disebut ...|Gotong royong|Persaingan|Perselisihan|Pertikaian
+3|Rumah ibadah umat Islam adalah ...|Masjid|Gereja|Pura|Vihara
+3|Rumah ibadah umat Hindu adalah ...|Pura|Masjid|Gereja|Vihara
+4|Pancasila dirumuskan dalam sidang ...|BPUPKI|PBB|ASEAN|MPR
+4|Dasar negara Indonesia adalah ...|Pancasila|UUD 1945|Bhinneka Tunggal Ika|Sumpah Pemuda
+4|Konstitusi negara Indonesia adalah ...|UUD 1945|Pancasila|Proklamasi|Sumpah Pemuda
+4|UUD 1945 disahkan pada tanggal ...|18 Agustus 1945|17 Agustus 1945|1 Juni 1945|28 Oktober 1928
+4|Hari Lahir Pancasila diperingati setiap tanggal ...|1 Juni|17 Agustus|28 Oktober|10 November
+4|Hari Sumpah Pemuda diperingati setiap tanggal ...|28 Oktober|17 Agustus|1 Juni|20 Mei
+4|Semboyan Bhinneka Tunggal Ika tertulis pada ...|Pita yang dicengkeram kaki Garuda|Perisai|Sayap Garuda|Paruh Garuda
+4|Jumlah bulu pada sayap Garuda Pancasila adalah ...|17|8|45|5
+4|Jumlah bulu pada ekor Garuda Pancasila adalah ...|8|17|45|5
+4|Kepala banteng melambangkan sila ...|Keempat|Pertama|Kedua|Ketiga
+4|Menerima perbedaan pendapat saat musyawarah berarti ...|Menghargai pendapat orang lain|Memaksakan kehendak|Meninggalkan rapat|Marah-marah
+4|Contoh sikap cinta tanah air adalah ...|Menggunakan produk dalam negeri|Merusak fasilitas umum|Membuang sampah ke sungai|Membenci budaya sendiri
+4|Contoh perilaku persatuan di sekolah adalah ...|Kerja kelompok dengan rukun|Memilih-milih teman|Bertengkar|Menyendiri
+4|Pelanggaran tata tertib akan mendapat ...|Sanksi|Hadiah|Pujian|Libur
+4|Lagu Indonesia Raya diciptakan oleh ...|W.R. Supratman|Ismail Marzuki|C. Simanjuntak|Ibu Sud
+4|Peristiwa 10 November 1945 terjadi di kota ...|Surabaya|Jakarta|Bandung|Semarang
+4|Pahlawan wanita dari Jepara yang memperjuangkan pendidikan perempuan adalah ...|R.A. Kartini|Cut Nyak Dien|Dewi Sartika|Martha Christina Tiahahu
+4|Norma yang berasal dari ajaran agama disebut norma ...|Agama|Hukum|Kesopanan|Kesusilaan
+4|Norma yang berasal dari peraturan tertulis negara disebut norma ...|Hukum|Agama|Kesopanan|Kesusilaan
+4|Contoh kewajiban warga negara adalah ...|Membayar pajak|Mendapat pendidikan|Mendapat layanan kesehatan|Bebas beribadah
+5|Pancasila disahkan sebagai dasar negara oleh ...|PPKI|BPUPKI|MPR|DPR
+5|Ketua BPUPKI adalah ...|dr. K.R.T. Radjiman Wedyodiningrat|Ir. Soekarno|Moh. Hatta|Moh. Yamin
+5|Ketua PPKI adalah ...|Ir. Soekarno|Moh. Hatta|Soepomo|Moh. Yamin
+5|Lembaga yang membuat undang-undang bersama presiden adalah ...|DPR|BPK|Mahkamah Agung|KPK
+5|Kepala negara dan kepala pemerintahan Indonesia adalah ...|Presiden|Menteri|Gubernur|Bupati
+5|Lembaga peradilan tertinggi di Indonesia adalah ...|Mahkamah Agung|DPR|BPK|MPR
+5|Asas pemilu: langsung, umum, bebas, dan ...|Rahasia|Terbuka|Berbayar|Wajib
+5|Warga negara berhak memilih dalam pemilu jika berusia minimal ...|17 tahun|15 tahun|20 tahun|25 tahun
+5|Dasar hukum tertinggi di Indonesia adalah ...|UUD 1945|Peraturan daerah|Peraturan desa|Peraturan sekolah
+5|Perlakuan membeda-bedakan orang karena suku atau agama disebut ...|Diskriminasi|Toleransi|Musyawarah|Gotong royong
+5|Wilayah Indonesia terbentang dari Sabang sampai ...|Merauke|Kupang|Jayapura|Manado
+5|Bentuk negara Indonesia adalah ...|Kesatuan|Federal|Serikat|Persemakmuran
+5|Bentuk pemerintahan Indonesia adalah ...|Republik|Kerajaan|Monarki|Kesultanan
+5|NKRI kepanjangan dari ...|Negara Kesatuan Republik Indonesia|Negara Kerajaan Republik Indonesia|Negeri Kesatuan Rakyat Indonesia|Negara Kepulauan Republik Indonesia
+5|Persatuan dalam keberagaman dijaga dengan sikap ...|Toleransi|Egois|Diskriminasi|Saling curiga
+5|Lembaga yang menyelenggarakan pemilu adalah ...|KPU|KPK|DPR|MA
+6|Pembukaan UUD 1945 terdiri atas ... alinea|4|3|5|2
+6|Tujuan negara Indonesia salah satunya adalah ...|Mencerdaskan kehidupan bangsa|Memperluas wilayah|Menguasai negara lain|Menjajah bangsa lain
+6|Organisasi bangsa-bangsa di dunia disebut ...|PBB|ASEAN|WHO|UNESCO
+6|ASEAN didirikan pada tahun ...|1967|1945|1955|1998
+6|Konferensi Asia Afrika diselenggarakan di kota ...|Bandung|Jakarta|Surabaya|Yogyakarta
+6|Hak asasi manusia disingkat ...|HAM|HAN|HAK|HIM
+6|Contoh pelanggaran HAM adalah ...|Menyiksa orang lain|Membantu tetangga|Belajar kelompok|Memberi hadiah
+6|Hal yang dapat memecah persatuan bangsa adalah ...|Sikap saling curiga antar suku|Gotong royong|Musyawarah|Toleransi
+6|Berita bohong yang tersebar di internet disebut ...|Hoaks|Fakta|Berita utama|Opini
+6|Sebelum membagikan informasi di media sosial, kita harus ...|Memeriksa kebenarannya|Langsung menyebarkan|Mengubahnya|Menambah bumbu
+6|Sikap bela negara bagi pelajar adalah ...|Belajar sungguh-sungguh|Tawuran|Membolos|Merusak fasilitas
+6|Bela negara dilakukan oleh ... warga negara|Setiap|Tentara saja|Pejabat saja|Polisi saja
+6|Pemilu nasional diselenggarakan setiap ... tahun sekali|5|3|4|10
+6|Menjauhi narkoba adalah bentuk ... terhadap bangsa|Kepedulian|Kesombongan|Keegoisan|Kemalasan
+6|Menggunakan produk dalam negeri membantu ...|Ekonomi bangsa|Negara lain|Penjajahan|Pengangguran
+6|Menjaga persatuan di tengah perbedaan sesuai semboyan ...|Bhinneka Tunggal Ika|Tut Wuri Handayani|Merdeka atau mati|Gemah ripah
+6|Indonesia menolak penjajahan karena sesuai ...|Pembukaan UUD 1945|Hukum adat saja|Peraturan sekolah|Kebiasaan lama
+1|Berdoa sebelum belajar adalah wujud ...|Bersyukur kepada Tuhan|Malas|Sombong|Iri
+1|Jika teman sakit, kita sebaiknya ...|Menjenguk|Mengejek|Menjauhi|Melupakan
+1|Setelah meminjam barang, kita harus ...|Mengembalikannya|Merusaknya|Menyimpannya|Menjualnya
+1|Jika berbuat salah, kita harus ...|Meminta maaf|Marah|Menyalahkan teman|Berbohong
+2|Antre saat membeli jajanan adalah sikap ...|Disiplin|Menyerobot|Egois|Curang
+2|Menjaga kebersihan kelas adalah tugas ...|Semua siswa|Guru saja|Penjaga sekolah saja|Ketua kelas saja
+2|Rumah ibadah umat Kristen adalah ...|Gereja|Masjid|Pura|Vihara
+2|Hari Natal dirayakan oleh umat ...|Kristen|Islam|Hindu|Buddha
+2|Hari Idul Fitri dirayakan oleh umat ...|Islam|Kristen|Hindu|Buddha
+3|Hari raya Nyepi dirayakan umat ...|Hindu|Islam|Buddha|Kristen
+3|Hari raya Waisak dirayakan umat ...|Buddha|Hindu|Islam|Kristen
+3|Contoh keberagaman di Indonesia adalah ...|Suku, agama, dan budaya|Warna rambut saja|Ukuran sepatu|Jenis jajanan
+3|Rukun Tetangga disingkat ...|RT|RW|RK|RN
+3|Pemimpin di tingkat desa adalah ...|Kepala desa|Camat|Bupati|Gubernur
+3|Pemimpin di tingkat provinsi adalah ...|Gubernur|Bupati|Wali kota|Camat
+4|Pemimpin di tingkat kabupaten adalah ...|Bupati|Gubernur|Camat|Lurah
+4|Pemimpin di tingkat kota adalah ...|Wali kota|Bupati|Camat|Gubernur
+4|Pemimpin di tingkat kecamatan adalah ...|Camat|Lurah|Bupati|Gubernur
+4|Pemimpin di tingkat kelurahan adalah ...|Lurah|Camat|Bupati|Gubernur
+4|Mengambil keputusan dengan musyawarah disebut cara yang ...|Demokratis|Otoriter|Semena-mena|Memaksa
+5|Semua warga negara sama kedudukannya di depan hukum, ini asas ...|Persamaan|Perbedaan|Kekuasaan|Keturunan
+5|Lembaga negara yang memeriksa keuangan negara adalah ...|BPK|DPR|MA|KPU
+5|MPR kepanjangan dari ...|Majelis Permusyawaratan Rakyat|Majelis Perwakilan Rakyat|Majelis Pemerintah Rakyat|Mahkamah Permusyawaratan Rakyat
+5|Presiden Indonesia dipilih oleh rakyat melalui ...|Pemilu|Undian|Penunjukan|Warisan
+6|Pajak yang dibayar warga digunakan untuk ...|Pembangunan negara|Keuntungan pribadi|Hadiah|Liburan pejabat
+6|Hak dan kewajiban harus dilaksanakan secara ...|Seimbang|Berat sebelah|Dipilih saja|Bebas
+6|Contoh pelaksanaan sila kelima adalah ...|Menolong korban bencana|Memilih-milih teman|Menolak berbagi|Bersikap sombong
+1|Menyapa teman dengan ramah adalah sikap ...|Santun|Sombong|Kasar|Cuek
+1|Hari kemerdekaan Indonesia diperingati setiap tanggal ...|17 Agustus|1 Juni|20 Mei|10 November
+2|Menjenguk tetangga yang sakit adalah wujud ...|Kepedulian|Kesombongan|Keegoisan|Kemalasan
+2|Sebelum meminjam barang kita harus meminta ...|Izin|Paksa|Diam-diam|Tidak perlu
+2|Sila pertama Pancasila dilambangkan dengan ...|Bintang|Rantai|Pohon beringin|Padi dan kapas
+3|Contoh perilaku jujur adalah ...|Mengaku salah|Mencontek|Berbohong|Menyalahkan teman
+3|Contoh sikap tanggung jawab adalah ...|Mengerjakan PR sendiri|Menyuruh teman|Menunda-nunda|Lari dari tugas
+3|Setiap warga negara wajib menaati ...|Hukum dan aturan|Kemauan sendiri|Ajakan buruk|Kebiasaan buruk
+4|Kegiatan bergotong royong di lingkungan disebut ...|Kerja bakti|Berkelahi|Berdagang|Berlibur
+4|Menyampaikan pendapat harus dilakukan dengan ...|Sopan dan bertanggung jawab|Kasar|Memaksa|Menghina
+4|Bela negara dapat dilakukan dengan ...|Menjaga persatuan|Bertengkar|Merusak fasilitas|Membolos
+5|Lembaga yang menguji undang-undang terhadap UUD adalah ...|Mahkamah Konstitusi|DPR|BPK|KPU
+5|Wakil rakyat di tingkat pusat disebut anggota ...|DPR|DPRD|RT|RW
+5|Wakil rakyat di tingkat daerah disebut anggota ...|DPRD|DPR|MPR|MA
+6|Pemilihan kepala daerah disingkat ...|Pilkada|Pilpres|Pileg|Pemilu
+6|Kebebasan beragama dijamin UUD 1945 pasal ...|29|27|30|33
+6|Pasal UUD 1945 tentang pendidikan adalah pasal ...|31|29|33|27
+6|Pasal UUD 1945 tentang perekonomian adalah pasal ...|33|31|29|27
+1|Menjaga kebersihan lingkungan adalah tugas ...|Kita semua|Orang lain|Petugas saja|Tidak ada
+2|Kita harus menepati ...|Janji|Kesalahan|Kemalasan|Keluhan
+3|Pahlawan wanita dari Aceh adalah ...|Cut Nyak Dien|R.A. Kartini|Dewi Sartika|Martha Christina Tiahahu
+3|Pangeran Diponegoro berasal dari ...|Yogyakarta|Aceh|Makassar|Bali
+3|Sultan Hasanuddin berasal dari ...|Sulawesi Selatan|Aceh|Jawa|Bali
+4|Pattimura berasal dari ...|Maluku|Aceh|Jawa|Bali
+4|Ki Hajar Dewantara mendirikan perguruan ...|Taman Siswa|Budi Utomo|Sarekat Islam|Muhammadiyah
+4|Semboyan pendidikan Ki Hajar Dewantara adalah ...|Tut Wuri Handayani|Bhinneka Tunggal Ika|Merdeka atau mati|Gemah ripah
+5|Hari Pendidikan Nasional diperingati setiap tanggal ...|2 Mei|20 Mei|17 Agustus|10 November
+5|Hari Kebangkitan Nasional diperingati setiap tanggal ...|20 Mei|2 Mei|1 Juni|28 Oktober
+5|Hari Kesaktian Pancasila diperingati setiap tanggal ...|1 Oktober|1 Juni|17 Agustus|28 Oktober
+6|Dewan Perwakilan Daerah disingkat ...|DPD|DPR|MPR|BPK
+6|Lembaga yang memberantas korupsi adalah ...|KPK|KPU|BPK|MA
+6|Korupsi adalah perbuatan mengambil uang negara secara ...|Tidak sah|Sah|Jujur|Terbuka
+6|Perilaku anti korupsi bagi siswa adalah ...|Jujur saat ujian|Mencontek|Mengambil uang teman|Berbohong`.trim().split('\n').map(l=>l.split('|'));
+function gP(k){const lo=k<=2?1:k<=4?3:5,a=PB.filter(x=>+x[0]>=lo&&+x[0]<=lo+1),x=a[R(0,a.length-1)],o=x.slice(2).sort(()=>Math.random()-.5);return{t:x[1],o,c:o.indexOf(x[2]),ans:x[2],m:'pkn'}}
+const PA=`1|Rukun Islam ada ...|5|4|6|3
+1|Kitab suci umat Islam adalah ...|Al-Qur'an|Injil|Taurat|Zabur
+1|Nabi terakhir adalah Nabi ...|Muhammad SAW|Isa AS|Musa AS|Ibrahim AS
+1|Ucapan salam umat Islam adalah ...|Assalamualaikum|Selamat pagi|Halo|Sampai jumpa
+1|Jawaban salam adalah ...|Waalaikumsalam|Terima kasih|Selamat siang|Sama-sama
+1|Sebelum makan kita membaca ...|Bismillah|Alhamdulillah|Astaghfirullah|Takbir
+1|Setelah makan kita mengucapkan ...|Alhamdulillah|Bismillah|Astaghfirullah|Subhanallah
+1|Ucapan setelah bersin adalah ...|Alhamdulillah|Bismillah|Innalillahi|Masyaallah
+1|Tempat shalat umat Islam adalah ...|Masjid|Gereja|Pura|Vihara
+1|Shalat wajib sehari semalam ada ... waktu|5|3|4|6
+1|Shalat wajib di pagi hari adalah shalat ...|Subuh|Zuhur|Asar|Magrib
+1|Bulan puasa umat Islam adalah bulan ...|Ramadan|Syawal|Muharam|Rajab
+1|Yang menciptakan alam semesta adalah ...|Allah SWT|Manusia|Malaikat|Nabi
+1|Huruf hijaiyah pertama adalah ...|Alif|Ba|Ta|Jim
+1|Berbohong adalah akhlak ...|Tercela|Terpuji|Baik|Mulia
+1|Menghormati orang tua adalah akhlak ...|Terpuji|Tercela|Buruk|Jahat
+2|Rukun iman ada ...|6|5|4|7
+2|Malaikat penyampai wahyu adalah ...|Jibril|Mikail|Israfil|Izrail
+2|Malaikat pencabut nyawa adalah ...|Izrail|Jibril|Mikail|Israfil
+2|Malaikat pembagi rezeki adalah ...|Mikail|Jibril|Israfil|Rakib
+2|Malaikat peniup sangkakala adalah ...|Israfil|Jibril|Mikail|Munkar
+2|Kitab yang diturunkan kepada Nabi Musa adalah ...|Taurat|Zabur|Injil|Al-Qur'an
+2|Kitab yang diturunkan kepada Nabi Isa adalah ...|Injil|Taurat|Zabur|Al-Qur'an
+2|Kitab yang diturunkan kepada Nabi Daud adalah ...|Zabur|Taurat|Injil|Al-Qur'an
+2|Nabi yang membangun Kakbah bersama putranya adalah ...|Ibrahim AS|Nuh AS|Yusuf AS|Sulaiman AS
+2|Nabi yang membuat kapal besar adalah ...|Nuh AS|Musa AS|Yunus AS|Ayyub AS
+2|Nabi yang ditelan ikan paus adalah ...|Yunus AS|Nuh AS|Musa AS|Yakub AS
+2|Bersuci sebelum shalat disebut ...|Wudu|Azan|Iqamah|Takbir
+2|Panggilan untuk shalat disebut ...|Azan|Iqamah|Takbir|Salam
+2|Shalat diawali dengan ...|Takbiratul ihram|Salam|Sujud|Rukuk
+2|Shalat diakhiri dengan ...|Salam|Takbir|Sujud|Iqamah
+2|Puasa Ramadan berakhir saat waktu ...|Magrib|Zuhur|Asar|Subuh
+2|Hari raya setelah puasa Ramadan adalah ...|Idul Fitri|Idul Adha|Maulid|Isra Mikraj
+3|Sifat rasul yang artinya jujur adalah ...|Siddiq|Amanah|Tabligh|Fatanah
+3|Sifat rasul yang artinya dapat dipercaya adalah ...|Amanah|Siddiq|Tabligh|Fatanah
+3|Sifat rasul yang artinya menyampaikan adalah ...|Tabligh|Amanah|Siddiq|Fatanah
+3|Sifat rasul yang artinya cerdas adalah ...|Fatanah|Tabligh|Siddiq|Amanah
+3|Rukun Islam kedua adalah ...|Shalat|Syahadat|Puasa|Zakat
+3|Rukun Islam ketiga adalah ...|Zakat|Shalat|Puasa|Haji
+3|Rukun Islam keempat adalah ...|Puasa Ramadan|Zakat|Shalat|Haji
+3|Rukun Islam kelima adalah ...|Haji|Puasa|Zakat|Shalat
+3|Rukun iman pertama adalah iman kepada ...|Allah|Malaikat|Kitab|Rasul
+3|Jumlah rakaat shalat Subuh adalah ...|2|3|4|5
+3|Jumlah rakaat shalat Magrib adalah ...|3|2|4|5
+3|Jumlah rakaat shalat Zuhur adalah ...|4|2|3|5
+3|Shalat Jumat dilaksanakan pada hari ...|Jumat|Kamis|Sabtu|Minggu
+3|Zakat yang dikeluarkan di bulan Ramadan disebut zakat ...|Fitrah|Mal|Harta|Emas
+3|Kota kelahiran Nabi Muhammad SAW adalah ...|Mekah|Madinah|Yerusalem|Kairo
+3|Kota tujuan hijrah Nabi Muhammad SAW adalah ...|Madinah|Mekah|Thaif|Yaman
+3|Ayah Nabi Muhammad SAW bernama ...|Abdullah|Abdul Muthalib|Abu Thalib|Abu Bakar
+3|Ibu Nabi Muhammad SAW bernama ...|Aminah|Khadijah|Aisyah|Fatimah
+3|Istri pertama Nabi Muhammad SAW adalah ...|Khadijah|Aisyah|Hafsah|Aminah
+3|Surat pertama dalam Al-Qur'an adalah ...|Al-Fatihah|Al-Ikhlas|An-Nas|Al-Baqarah
+3|Surat terakhir dalam Al-Qur'an adalah ...|An-Nas|Al-Fatihah|Al-Falaq|Al-Ikhlas
+3|Al-Qur'an terdiri atas ... surat|114|30|60|124
+4|Al-Qur'an terdiri atas ... juz|30|114|60|40
+4|Khalifah pertama setelah Nabi Muhammad SAW adalah ...|Abu Bakar Ash-Shiddiq|Umar bin Khattab|Utsman bin Affan|Ali bin Abi Thalib
+4|Khalifah kedua adalah ...|Umar bin Khattab|Abu Bakar Ash-Shiddiq|Utsman bin Affan|Ali bin Abi Thalib
+4|Khalifah ketiga adalah ...|Utsman bin Affan|Umar bin Khattab|Abu Bakar Ash-Shiddiq|Ali bin Abi Thalib
+4|Khalifah keempat adalah ...|Ali bin Abi Thalib|Utsman bin Affan|Umar bin Khattab|Abu Bakar Ash-Shiddiq
+4|Wahyu pertama yang diterima Nabi adalah surat ...|Al-Alaq|Al-Fatihah|Al-Baqarah|Al-Ikhlas
+4|Wahyu pertama diterima Nabi di Gua ...|Hira|Tsur|Uhud|Safa
+4|Perjalanan Nabi dari Mekah ke Madinah disebut ...|Hijrah|Isra Mikraj|Maulid|Haji
+4|Perjalanan Nabi dalam semalam ke Masjidil Aqsa dan langit disebut ...|Isra Mikraj|Hijrah|Maulid|Haji Wada
+4|Perintah shalat lima waktu diterima Nabi saat ...|Isra Mikraj|Hijrah|Perang Badar|Haji Wada
+4|Anggota wudu yang dibasuh pertama kali adalah ...|Wajah|Tangan|Kaki|Kepala
+4|Bersuci dengan debu jika tidak ada air disebut ...|Tayamum|Wudu|Mandi wajib|Istinja
+4|Ucapan ketika mendapat musibah adalah ...|Innalillahi wa inna ilaihi raji'un|Alhamdulillah|Masyaallah|Subhanallah
+4|Ucapan ketika kagum adalah ...|Masyaallah|Innalillahi|Astaghfirullah|Alhamdulillah
+4|Ucapan ketika berbuat salah adalah ...|Astaghfirullah|Alhamdulillah|Masyaallah|Bismillah
+4|Asmaul Husna yang artinya Maha Pencipta adalah ...|Al-Khaliq|Ar-Razzaq|Al-Alim|Al-Ghaffar
+4|Asmaul Husna yang artinya Maha Pemberi Rezeki adalah ...|Ar-Razzaq|Al-Khaliq|Al-Alim|Al-Ghaffar
+4|Asmaul Husna yang artinya Maha Mengetahui adalah ...|Al-Alim|Al-Khaliq|Ar-Razzaq|Al-Ghaffar
+4|Jumlah Asmaul Husna adalah ...|99|100|90|114
+5|Orang yang memimpin shalat berjamaah disebut ...|Imam|Makmum|Muazin|Khatib
+5|Orang yang mengumandangkan azan disebut ...|Muazin|Imam|Makmum|Khatib
+5|Orang yang menyampaikan khutbah Jumat disebut ...|Khatib|Muazin|Makmum|Imam
+5|Gerakan membungkuk dalam shalat disebut ...|Rukuk|Sujud|Iktidal|Tasyahud
+5|Gerakan berdiri tegak setelah rukuk disebut ...|Iktidal|Sujud|Rukuk|Takbir
+5|Puasa Ramadan hukumnya ...|Wajib|Sunah|Makruh|Mubah
+5|Puasa Senin dan Kamis hukumnya ...|Sunah|Wajib|Haram|Makruh
+5|Malam yang lebih baik dari seribu bulan adalah ...|Lailatul Qadar|Nuzulul Qur'an|Isra Mikraj|Maulid
+5|Idul Adha berkaitan dengan kisah Nabi Ibrahim dan putranya ...|Ismail AS|Ishaq AS|Yakub AS|Yusuf AS
+5|Hewan yang disembelih saat Idul Adha disebut hewan ...|Kurban|Akikah|Zakat|Sedekah
+5|Penyembelihan hewan atas kelahiran anak disebut ...|Akikah|Kurban|Zakat|Haji
+5|Golongan penerima zakat ada ...|8|5|7|10
+5|Orang yang berhak menerima zakat disebut ...|Mustahik|Muzaki|Muazin|Makmum
+5|Orang yang wajib mengeluarkan zakat disebut ...|Muzaki|Mustahik|Muazin|Makmum
+5|Rukun haji yang dilakukan di Padang Arafah adalah ...|Wukuf|Tawaf|Sai|Tahalul
+5|Mengelilingi Kakbah tujuh kali disebut ...|Tawaf|Sai|Wukuf|Tahalul
+5|Berlari kecil antara Safa dan Marwah disebut ...|Sai|Tawaf|Wukuf|Ihram
+5|Sifat mustahil rasul yang berlawanan dengan jujur adalah ...|Kizib|Khianat|Kitman|Baladah
+6|Nabi yang diberi mukjizat tongkat adalah ...|Musa AS|Isa AS|Daud AS|Sulaiman AS
+6|Nabi yang dapat melunakkan besi adalah ...|Daud AS|Musa AS|Isa AS|Nuh AS
+6|Nabi yang tidak terbakar oleh api adalah ...|Ibrahim AS|Musa AS|Yunus AS|Zakaria AS
+6|Nabi yang terkenal sangat sabar saat sakit adalah ...|Ayyub AS|Nuh AS|Harun AS|Ismail AS
+6|Jumlah nabi dan rasul yang wajib diketahui adalah ...|25|20|30|124
+6|Rasul Ulul Azmi berjumlah ...|5|4|3|6
+6|Mukjizat terbesar Nabi Muhammad SAW adalah ...|Al-Qur'an|Tongkat|Perahu|Api dingin
+6|Perang pertama dalam sejarah Islam adalah Perang ...|Badar|Uhud|Khandaq|Tabuk
+6|Penaklukan kota Mekah disebut ...|Fathu Makkah|Hijrah|Isra Mikraj|Hudaibiyah
+6|Kalender Hijriah dimulai sejak peristiwa ...|Hijrah Nabi|Kelahiran Nabi|Isra Mikraj|Perang Badar
+6|Bulan pertama kalender Hijriah adalah ...|Muharam|Safar|Ramadan|Syawal
+6|Sumber hukum Islam yang pertama adalah ...|Al-Qur'an|Hadis|Ijmak|Kias
+6|Sumber hukum Islam yang kedua adalah ...|Hadis|Al-Qur'an|Ijmak|Kias
+6|Sikap tabah menghadapi cobaan disebut ...|Sabar|Sombong|Iri|Serakah
+6|Rukun iman kedua adalah iman kepada ...|Malaikat|Kitab|Rasul|Hari akhir
+6|Rukun iman ketiga adalah iman kepada ...|Kitab-kitab Allah|Rasul|Malaikat|Hari akhir
+6|Rukun iman keempat adalah iman kepada ...|Rasul|Kitab|Hari akhir|Malaikat
+6|Rukun iman kelima adalah iman kepada ...|Hari akhir|Qada dan Qadar|Rasul|Malaikat
+6|Rukun iman keenam adalah iman kepada ...|Qada dan Qadar|Hari akhir|Rasul|Kitab
+1|Ucapan saat memulai wudu adalah ...|Bismillah|Alhamdulillah|Subhanallah|Allahu Akbar
+1|Menolong orang lain adalah perbuatan ...|Baik|Buruk|Tercela|Jahat
+2|Malaikat pencatat amal baik adalah ...|Rakib|Atid|Malik|Ridwan
+2|Malaikat pencatat amal buruk adalah ...|Atid|Rakib|Malik|Ridwan
+2|Malaikat penjaga surga adalah ...|Ridwan|Malik|Rakib|Atid
+2|Malaikat penjaga neraka adalah ...|Malik|Ridwan|Rakib|Atid
+3|Tempat shalat Jumat berjamaah adalah ...|Masjid|Pasar|Lapangan|Sekolah
+3|Nabi Muhammad SAW lahir pada bulan ...|Rabiul Awal|Ramadan|Syawal|Muharam
+3|Peringatan kelahiran Nabi Muhammad SAW disebut ...|Maulid Nabi|Isra Mikraj|Nuzulul Qur'an|Idul Fitri
+4|Surat Al-Ikhlas berisi tentang ...|Keesaan Allah|Kisah Nabi Musa|Zakat|Puasa
+4|Surat Al-Kautsar terdiri atas ... ayat|3|5|7|10
+4|Surat Al-Ikhlas terdiri atas ... ayat|4|3|5|6
+4|Surat An-Nas terdiri atas ... ayat|6|5|7|3
+4|Yang bukan termasuk rukun shalat adalah ...|Makan|Niat|Rukuk|Sujud
+5|Shalat sunah malam hari setelah bangun tidur disebut ...|Tahajud|Duha|Tarawih|Witir
+5|Shalat sunah di waktu pagi setelah matahari naik disebut ...|Duha|Tahajud|Tarawih|Witir
+5|Shalat sunah khusus bulan Ramadan adalah ...|Tarawih|Tahajud|Duha|Gerhana
+5|Shalat yang dikerjakan saat gerhana disebut shalat ...|Gerhana|Duha|Tarawih|Jumat
+6|Perang Uhud terjadi di dekat kota ...|Madinah|Mekah|Thaif|Yaman
+6|Perang Khandaq dilakukan dengan cara ...|Menggali parit|Membangun benteng|Berlayar|Menyerang malam
+6|Perjanjian damai Nabi dengan kaum Quraisy disebut perjanjian ...|Hudaibiyah|Linggarjati|Renville|Roem-Royen
+6|Haji Wada artinya haji ...|Perpisahan|Pertama|Kedua|Besar
+1|Tuhan umat Islam adalah ...|Allah SWT|Nabi Muhammad|Malaikat|Jin
+2|Orang yang beriman kepada Allah disebut ...|Mukmin|Munafik|Kafir|Fasik
+2|Rukun Islam yang pertama adalah ...|Syahadat|Shalat|Zakat|Puasa
+3|Nabi pertama adalah Nabi ...|Adam AS|Nuh AS|Ibrahim AS|Musa AS
+3|Nabi Ibrahim AS dijuluki ...|Khalilullah|Kalimullah|Ruhullah|Habibullah
+3|Nabi Musa AS dijuluki ...|Kalimullah|Khalilullah|Ruhullah|Habibullah
+3|Nabi Isa AS dijuluki ...|Ruhullah|Kalimullah|Khalilullah|Habibullah
+3|Nabi Muhammad SAW dijuluki ...|Habibullah|Kalimullah|Ruhullah|Khalilullah
+4|Surat Al-Fatihah terdiri atas ... ayat|7|5|10|3
+4|Surat Al-Fatihah disebut juga ...|Ummul Kitab|Surat Panjang|Surat Pendek|Surat Cinta
+4|Bacaan setelah takbiratul ihram adalah doa ...|Iftitah|Qunut|Tahiyat|Salam
+5|Shalat jamak adalah menggabungkan dua shalat dalam satu ...|Waktu|Rakaat|Masjid|Hari
+5|Orang yang sedang bepergian jauh disebut ...|Musafir|Mukmin|Muazin|Mustahik
+6|Harta yang wajib dizakati harus mencapai ...|Nisab|Hisab|Hijab|Hijrah
+6|Menuntut ilmu hukumnya ...|Wajib|Haram|Makruh|Mubah`.trim().split('\n').map(l=>l.split('|'));
+function gA(k){const lo=k<=2?1:k<=4?3:5,a=PA.filter(x=>+x[0]>=lo&&+x[0]<=lo+1),x=a[R(0,a.length-1)],o=x.slice(2).sort(()=>Math.random()-.5);return{t:x[1],o,c:o.indexOf(x[2]),ans:x[2],m:'pai'}}
+const PJ=`1|Olahraga yang ditendang dengan kaki adalah ...|Sepak bola|Renang|Senam|Catur
+1|Olahraga yang dilakukan di air adalah ...|Renang|Lompat jauh|Sepak bola|Bulu tangkis
+1|Alat bermain bulu tangkis adalah ...|Raket dan kok|Bola dan gawang|Tongkat dan bola|Tali
+1|Sebelum berolahraga kita melakukan ...|Pemanasan|Tidur|Makan banyak|Bermain gawai
+1|Setelah berolahraga kita melakukan ...|Pendinginan|Pemanasan|Begadang|Berlari lagi
+1|Agar tubuh sehat kita harus makan makanan ...|Bergizi|Manis saja|Berminyak saja|Instan saja
+1|Kita sebaiknya mandi ... sehari|Dua kali|Sekali seminggu|Sebulan sekali|Tidak perlu
+1|Bola basket dimasukkan ke ...|Ring|Gawang|Lubang tanah|Net voli
+1|Anggota tubuh yang dipakai untuk berlari adalah ...|Kaki|Telinga|Hidung|Rambut
+1|Anggota tubuh yang dipakai untuk melempar adalah ...|Tangan|Kaki|Telinga|Mata
+1|Tidur malam yang cukup membuat tubuh ...|Bugar|Lemah|Sakit|Pusing
+1|Mencuci tangan dengan sabun mencegah ...|Penyakit|Lapar|Haus|Mengantuk
+1|Contoh permainan tradisional adalah ...|Egrang|Video game|Balap online|Playstation
+2|Lari jarak pendek disebut ...|Sprint|Maraton|Estafet|Lari gawang
+2|Lari berantai dengan tongkat disebut lari ...|Estafet|Sprint|Maraton|Gawang
+2|Lompat jauh dimulai dengan ...|Awalan|Pendinginan|Duduk|Berbaring
+2|Pemain sepak bola dalam satu tim ada ... orang|11|5|7|15
+2|Pemain bola basket dalam satu tim di lapangan ada ... orang|5|7|11|6
+2|Pemain bola voli dalam satu tim di lapangan ada ... orang|6|5|7|11
+2|Bola voli dimainkan dengan cara ...|Dipukul melewati net|Ditendang ke gawang|Dilempar ke ring|Dipukul dengan tongkat
+2|Gerakan berguling ke depan pada senam lantai disebut ...|Guling depan|Lompat tali|Kayang|Lompat jauh
+2|Olahraga yang teratur membuat tubuh ...|Sehat dan kuat|Lemah|Cepat sakit|Mudah lelah
+2|Makanan sehat yang banyak vitamin adalah ...|Sayur dan buah|Permen|Keripik|Minuman bersoda
+2|Kuku yang bersih dijaga dengan ...|Memotongnya|Menggigitnya|Membiarkan panjang|Mengotorinya
+2|Saat bersin, kita menutup mulut dengan ...|Tisu atau siku|Tangan kotor|Dibiarkan|Baju kotor
+2|Renang dengan tubuh telentang disebut gaya ...|Punggung|Dada|Bebas|Kupu-kupu
+3|Bulu tangkis satu lawan satu disebut nomor ...|Tunggal|Ganda|Campuran|Beregu
+3|Olahraga dengan pemukul dan bola kecil adalah ...|Kasti|Voli|Renang|Senam
+3|Memantulkan bola basket dengan satu tangan disebut ...|Dribel|Passing|Shooting|Rebound
+3|Mengoper bola disebut ...|Passing|Dribel|Servis|Smash
+3|Memasukkan bola ke ring disebut ...|Shooting|Passing|Servis|Block
+3|Pukulan awal dalam bola voli disebut ...|Servis|Smash|Block|Dribel
+3|Pukulan keras dari atas net dalam bola voli disebut ...|Smash|Servis|Passing|Dribel
+3|Penjaga gawang dalam sepak bola disebut ...|Kiper|Striker|Gelandang|Bek
+3|Pemimpin pertandingan disebut ...|Wasit|Kiper|Pelatih|Penonton
+3|Pemanasan yang benar adalah ...|Peregangan otot|Tidur|Makan|Menonton
+3|Zat gizi pembangun tubuh adalah ...|Protein|Karbohidrat|Lemak|Air
+3|Zat gizi sumber tenaga utama adalah ...|Karbohidrat|Protein|Vitamin|Mineral
+3|Gigi berlubang disebabkan gigi yang ...|Tidak dirawat|Disikat teratur|Bersih|Sehat
+3|Sebelum menyeberang jalan kita harus ...|Melihat kanan dan kiri|Berlari|Menutup mata|Bermain
+3|Bela diri asli Indonesia adalah ...|Pencak silat|Karate|Taekwondo|Kungfu
+3|Bela diri asal Jepang adalah ...|Karate|Taekwondo|Pencak silat|Kungfu
+3|Bela diri asal Korea adalah ...|Taekwondo|Karate|Pencak silat|Kungfu
+4|Bulu tangkis ganda dalam satu sisi dimainkan oleh ... orang|2|1|3|4
+4|Satu pertandingan basket terdiri atas ... kuarter|4|2|3|5
+4|Lapangan sepak bola berbentuk ...|Persegi panjang|Lingkaran|Segitiga|Bujur sangkar
+4|Menyundul bola dalam sepak bola menggunakan ...|Dahi|Telapak tangan|Lutut|Siku
+4|Denyut nadi dapat diraba di ...|Pergelangan tangan|Telapak kaki|Rambut|Perut
+4|Olahraga yang melatih daya tahan jantung adalah ...|Lari jarak jauh|Duduk|Tidur|Menonton
+4|Kelincahan dilatih dengan ...|Lari zig-zag|Duduk lama|Tidur|Berbaring
+4|Kelentukan tubuh dilatih dengan ...|Peregangan|Duduk|Tidur|Makan
+4|Kekuatan otot lengan dilatih dengan ...|Push up|Duduk|Membaca|Tidur
+4|Komponen kebugaran: daya tahan, kekuatan, dan ...|Kelentukan|Kemalasan|Kebisingan|Kesedihan
+4|Senam lantai dilakukan di atas ...|Matras|Rumput basah|Pasir|Air
+4|Penyakit akibat nyamuk Aedes aegypti adalah ...|Demam berdarah|Flu|Diare|Cacar air
+4|Pencegahan demam berdarah dilakukan dengan gerakan ...|3M|Menimbun air|Membiarkan genangan|Tidak mandi
+4|Kekurangan vitamin C menyebabkan ...|Skorbut|Rabun senja|Beri-beri|Rakitis
+4|Kekurangan vitamin A menyebabkan ...|Rabun senja|Skorbut|Beri-beri|Rakitis
+4|Makanan yang banyak mengandung kalsium adalah ...|Susu|Permen|Keripik|Soda
+4|Jajanan sehat adalah jajanan yang ...|Bersih dan bergizi|Banyak pewarna|Banyak pemanis buatan|Dikerubungi lalat
+5|Tolak peluru termasuk nomor ...|Lempar|Lari|Lompat|Jalan
+5|Lompat tinggi termasuk nomor ...|Lompat|Lempar|Lari|Jalan
+5|Lempar lembing termasuk nomor ...|Lempar|Lompat|Lari|Jalan
+5|Gaya dada dalam renang disebut juga gaya ...|Katak|Bebas|Punggung|Kupu-kupu
+5|Gaya renang tercepat adalah gaya ...|Bebas|Dada|Punggung|Kupu-kupu
+5|Denyut nadi maksimal secara umum adalah 220 dikurangi ...|Usia|Berat badan|Tinggi badan|Panjang kaki
+5|Olahraga yang teratur membuat tubuh menjadi ...|Bugar|Lesu|Mudah sakit|Kurus tidak sehat
+5|Narkoba berbahaya bagi ...|Kesehatan dan masa depan|Hanya kantong|Hanya mata|Tidak ada
+5|Merokok dapat merusak organ ...|Paru-paru|Rambut|Kuku|Jari
+5|Masa pubertas ditandai dengan perubahan ...|Fisik dan emosi|Warna kulit saja|Nama|Tempat tinggal
+5|Perubahan suara pada pubertas dipengaruhi oleh ...|Hormon|Makanan|Pakaian|Sepatu
+5|Menjaga kebersihan alat reproduksi mencegah ...|Infeksi|Lapar|Batuk|Pilek
+5|Pertolongan pertama pada luka kecil adalah ...|Membersihkan luka|Membiarkan terbuka|Menaburi tanah|Menggaruk
+5|Kotak berisi obat darurat disebut ...|Kotak P3K|Kotak pensil|Kotak mainan|Kotak makan
+5|UKS kepanjangan dari ...|Usaha Kesehatan Sekolah|Unit Kegiatan Siswa|Usaha Kerja Sama|Ujian Kenaikan Sekolah
+5|PMI kepanjangan dari ...|Palang Merah Indonesia|Pasukan Medis Indonesia|Pusat Medis Indonesia|Pelayanan Masyarakat Indonesia
+6|SEA Games adalah pesta olahraga negara-negara ...|Asia Tenggara|Asia Timur|Eropa|Afrika
+6|Olimpiade diadakan setiap ... tahun sekali|4|2|3|5
+6|Sportivitas dalam olahraga berarti ...|Jujur dan menerima kekalahan|Curang|Marah saat kalah|Meremehkan lawan
+6|Dalam permainan kasti ada regu pemukul dan regu ...|Penjaga|Wasit|Penonton|Pelatih
+6|Jumlah maksimal sentuhan bola per tim dalam bola voli adalah ...|3|2|4|5
+6|Jarak lari maraton adalah ...|42,195 km|10 km|21 km|5 km
+6|Peregangan statis dilakukan dengan ...|Menahan posisi beberapa detik|Melompat-lompat|Berlari|Memukul
+6|Olahraga yang baik dilakukan minimal ... kali seminggu|3|1|0|10
+6|Berolahraga secara berlebihan dapat menyebabkan ...|Kelelahan|Kebugaran|Kesehatan|Kekuatan
+6|Mengolah makanan dengan bersih mencegah ...|Keracunan|Kenyang|Haus|Mengantuk
+6|Pedoman gizi seimbang untuk anak Indonesia disebut ...|Isi Piringku|Piring Kosong|Banyak Gula|Banyak Garam
+6|Penyalahgunaan narkoba dicegah dengan ...|Menjauhi dan menolaknya|Mencoba sekali|Menerima dari teman|Menyembunyikannya
+6|Perundungan adalah perilaku ...|Menyakiti orang lain|Menolong teman|Berbagi|Bergotong royong
+6|Jika teman cedera saat olahraga, kita ...|Memberi pertolongan pertama|Menertawakan|Meninggalkan|Menyalahkan
+1|Berjalan kaki setiap hari membuat tubuh ...|Sehat|Sakit|Lemah|Lelah selalu
+1|Bermain bola dengan kaki disebut ...|Menendang|Memukul|Melempar|Melompat
+1|Minum air putih yang cukup sebaiknya ... gelas sehari|8|1|20|0
+2|Alat untuk bermain lompat tali adalah ...|Tali|Bola|Raket|Tongkat
+2|Berlari santai mengelilingi lapangan disebut ...|Jogging|Renang|Catur|Voli
+2|Gerakan tangan melempar bola disebut ...|Melempar|Menendang|Memukul|Meloncat
+3|Lompat jauh dinilai dari ...|Jarak lompatan|Kecepatan|Tinggi badan|Berat badan
+3|Lompat tinggi dinilai dari ...|Ketinggian lompatan|Jarak|Kecepatan|Warna baju
+3|Alat bermain tenis meja adalah ...|Bet dan bola kecil|Raket dan kok|Tongkat|Gawang
+3|Gizi seimbang terdiri atas karbohidrat, protein, lemak, vitamin, dan ...|Mineral|Gula|Garam|Soda
+4|Anak sekolah dasar sebaiknya tidur ... jam sehari|9–11 jam|3–4 jam|13–14 jam|1–2 jam
+4|Pemanasan sebelum lari berguna untuk ...|Mencegah cedera|Membuat lelah|Menambah lapar|Membuat ngantuk
+4|Lari zig-zag melatih ...|Kelincahan|Kekuatan|Kelentukan|Daya tahan
+4|Gerakan sit-up melatih otot ...|Perut|Kaki|Lengan|Punggung
+5|Atletik terdiri atas jalan, lari, lompat, dan ...|Lempar|Renang|Senam|Bulu tangkis
+5|Lempar yang menggunakan piringan disebut lempar ...|Cakram|Lembing|Martil|Peluru
+5|Kram otot dapat dikurangi dengan ...|Peregangan|Berlari terus|Menahan sakit|Berhenti minum
+5|Kekurangan cairan tubuh disebut ...|Dehidrasi|Anemia|Obesitas|Alergi
+5|Kekurangan zat besi dapat menyebabkan ...|Anemia|Dehidrasi|Obesitas|Rabun
+5|Kelebihan berat badan yang berlebihan disebut ...|Obesitas|Anemia|Dehidrasi|Alergi
+6|Olahraga yang melatih kekuatan, daya tahan, dan kelentukan adalah ...|Senam|Duduk|Menonton|Tidur
+6|Pada lari estafet, tongkat diserahkan di ...|Daerah pergantian|Garis awal|Tempat duduk|Tribun
+6|Tugas pelatih adalah ...|Melatih atlet|Memimpin pertandingan|Menonton|Menjual tiket
+6|Doping dalam olahraga adalah ...|Penggunaan zat terlarang|Latihan teratur|Pemanasan|Istirahat
+6|Atlet yang jujur tidak menggunakan ...|Doping|Sepatu|Raket|Bola
+1|Senam pagi dilakukan agar tubuh ...|Segar|Lemas|Sakit|Mengantuk
+1|Sebelum tidur kita sebaiknya menyikat ...|Gigi|Sepatu|Meja|Lantai
+2|Makan sayur dan buah membuat tubuh ...|Sehat|Sakit|Lemas|Gatal
+2|Olahraga yang menggunakan raket adalah ...|Bulu tangkis|Sepak bola|Renang|Lari
+3|Permainan kasti dimainkan oleh ... regu|2|3|4|1
+3|Pemain yang memukul bola dalam kasti disebut ...|Pemukul|Penjaga|Wasit|Penonton
+4|Lari 100 meter termasuk lari ...|Sprint|Maraton|Estafet|Gawang
+4|Penyakit akibat kurang gerak dan makan berlebihan adalah ...|Obesitas|Anemia|Cacar|Campak
+4|Menyikat gigi dilakukan minimal ... kali sehari|2|1|5|10
+5|Sakit perut dapat dicegah dengan ...|Mencuci tangan|Menunda makan|Jajan sembarangan|Minum air mentah
+5|Imunisasi berguna untuk ...|Kekebalan tubuh|Menambah tinggi|Menambah berat|Membuat lapar
+6|Bela diri bantingan asal Jepang adalah ...|Judo|Taekwondo|Pencak silat|Kungfu
+6|Kebugaran jasmani diukur dengan ...|Tes kebugaran|Menebak|Menonton|Tidur`.trim().split('\n').map(l=>l.split('|'));
+function gJ(k){const lo=k<=2?1:k<=4?3:5,a=PJ.filter(x=>+x[0]>=lo&&+x[0]<=lo+1),x=a[R(0,a.length-1)],o=x.slice(2).sort(()=>Math.random()-.5);return{t:x[1],o,c:o.indexOf(x[2]),ans:x[2],m:'pjok'}}
+const SB=`1|Warna primer adalah merah, kuning, dan ...|Biru|Hijau|Ungu|Oranye
+1|Merah dicampur kuning menghasilkan warna ...|Oranye|Hijau|Ungu|Biru
+1|Biru dicampur kuning menghasilkan warna ...|Hijau|Oranye|Ungu|Merah
+1|Merah dicampur biru menghasilkan warna ...|Ungu|Hijau|Oranye|Kuning
+1|Alat untuk menggambar adalah ...|Pensil|Sendok|Palu|Sapu
+1|Alat untuk mewarnai adalah ...|Krayon|Penggaris|Gunting|Sapu
+1|Bernyanyi termasuk seni ...|Musik|Rupa|Patung|Batik
+1|Menari termasuk seni ...|Tari|Rupa|Musik|Kerajinan
+1|Menggambar termasuk seni ...|Rupa|Musik|Tari|Teater
+1|Alat musik yang dipukul adalah ...|Drum|Seruling|Gitar|Biola
+1|Alat musik yang ditiup adalah ...|Seruling|Drum|Gitar|Piano
+1|Alat musik yang dipetik adalah ...|Gitar|Drum|Seruling|Terompet
+1|Kertas yang dilipat menjadi bentuk burung disebut ...|Origami|Batik|Wayang|Angklung
+1|Bertepuk tangan mengikuti ketukan termasuk kegiatan seni ...|Musik|Rupa|Patung|Lukis
+2|Garis yang lurus ke atas disebut garis ...|Tegak|Mendatar|Lengkung|Patah
+2|Garis yang bentuknya seperti ombak disebut garis ...|Bergelombang|Lurus|Tegak|Datar
+2|Bentuk dasar yang memiliki tiga sisi adalah ...|Segitiga|Lingkaran|Persegi|Persegi panjang
+2|Kain bergambar yang dibuat dengan malam dan canting disebut ...|Batik|Tenun|Songket|Sulam
+2|Alat musik bambu dari Jawa Barat adalah ...|Angklung|Sasando|Tifa|Gong
+2|Boneka kulit yang dimainkan dalang disebut ...|Wayang kulit|Boneka tangan|Marionet|Barongsai
+2|Tari Kecak berasal dari ...|Bali|Aceh|Papua|Jawa Barat
+2|Tari Saman berasal dari ...|Aceh|Bali|Papua|Jawa Barat
+2|Alat musik Papua yang dipukul adalah ...|Tifa|Angklung|Sasando|Kolintang
+2|Gamelan berasal dari daerah ...|Jawa|Papua|Aceh|Nusa Tenggara Timur
+2|Kerajinan dari tanah liat disebut ...|Gerabah|Anyaman|Tenun|Batik
+2|Kerajinan dari bambu yang disilang-silang disebut ...|Anyaman|Gerabah|Batik|Tenun
+2|Gambar dari tempelan potongan kertas disebut ...|Kolase|Batik|Patung|Tenun
+3|Seni yang menggunakan gerak tubuh yang indah adalah seni ...|Tari|Rupa|Musik|Kriya
+3|Karya seni rupa tiga dimensi adalah ...|Patung|Lukisan|Gambar|Poster
+3|Karya seni rupa dua dimensi adalah ...|Lukisan|Patung|Ukiran|Gerabah
+3|Contoh warna hangat adalah ...|Merah|Biru|Hijau|Ungu
+3|Contoh warna dingin adalah ...|Biru|Merah|Kuning|Oranye
+3|Contoh warna sekunder adalah ...|Hijau|Merah|Biru|Kuning
+3|Cepat lambatnya lagu disebut ...|Tempo|Dinamika|Melodi|Harmoni
+3|Keras lembutnya lagu disebut ...|Dinamika|Tempo|Melodi|Harmoni
+3|Rangkaian nada yang enak didengar disebut ...|Melodi|Tempo|Dinamika|Lirik
+3|Orang yang memimpin paduan suara atau orkestra disebut ...|Dirigen|Pianis|Penonton|Wasit
+3|Alat musik Sulawesi Utara berbilah kayu adalah ...|Kolintang|Tifa|Sasando|Angklung
+3|Alat musik Nusa Tenggara Timur yang dipetik adalah ...|Sasando|Angklung|Tifa|Gamelan
+3|Tari Piring berasal dari ...|Sumatera Barat|Aceh|Bali|Papua
+3|Tari Jaipong berasal dari ...|Jawa Barat|Jawa Timur|Bali|Aceh
+3|Tari Pendet berasal dari ...|Bali|Jawa Barat|Aceh|Papua
+3|Tari Reog berasal dari ...|Ponorogo, Jawa Timur|Bandung|Medan|Makassar
+4|Wayang kulit populer di pulau ...|Jawa|Papua|Kalimantan|Sumatra
+4|Orang yang memainkan wayang disebut ...|Dalang|Sinden|Penabuh|Penari
+4|Tokoh punakawan dalam wayang adalah ...|Semar|Arjuna|Bima|Rama
+4|Tokoh punakawan lainnya adalah ...|Petruk|Arjuna|Bima|Yudistira
+4|Kain tenun khas Batak adalah ...|Ulos|Songket|Batik|Tapis
+4|Kain songket terkenal berasal dari ...|Palembang|Papua|Ambon|Manado
+4|Batik Pekalongan berasal dari ...|Jawa Tengah|Bali|Aceh|Papua
+4|Batik ditetapkan UNESCO sebagai warisan budaya milik ...|Indonesia|Malaysia|Jepang|India
+4|Angklung ditetapkan UNESCO sebagai warisan budaya milik ...|Indonesia|Malaysia|Thailand|Filipina
+4|Lagu Indonesia Raya termasuk lagu ...|Kebangsaan|Daerah|Anak-anak|Pop
+4|Lagu daerah Apuse berasal dari ...|Papua|Aceh|Bali|Jawa
+4|Lagu daerah Cublak-Cublak Suweng berasal dari ...|Jawa Tengah|Sumatera Barat|Maluku|NTT
+4|Lagu daerah Manuk Dadali berasal dari ...|Jawa Barat|Jawa Timur|Bali|Aceh
+4|Lagu daerah Rasa Sayange berasal dari ...|Maluku|Aceh|Sumatera Utara|Bali
+4|Batik yang dibuat dengan alat canting disebut batik ...|Tulis|Cap|Printing|Lukis
+4|Batik yang dibuat dengan alat cetak logam disebut batik ...|Cap|Tulis|Printing|Lukis
+4|Mewarnai kain dengan cara diikat dan dicelup disebut ...|Jumputan|Batik tulis|Batik cap|Printing
+5|Pengulangan unsur dalam karya seni disebut ...|Irama|Kontras|Proporsi|Fokus
+5|Perbandingan ukuran bagian dalam karya seni disebut ...|Proporsi|Irama|Kontras|Fokus
+5|Perpindahan warna dari terang ke gelap secara halus disebut ...|Gradasi|Kontras|Proporsi|Irama
+5|Gambar awal yang masih kasar disebut ...|Sketsa|Lukisan jadi|Patung|Poster
+5|Seni kriya adalah seni membuat ...|Barang kerajinan tangan|Lagu|Tarian|Drama
+5|Kerajinan kayu yang dipahat disebut ...|Ukiran|Anyaman|Batik|Tenun
+5|Kota penghasil ukiran kayu di Jawa Tengah adalah ...|Jepara|Solo|Magelang|Semarang
+5|Kota penghasil kerajinan perak di Yogyakarta adalah ...|Kotagede|Prambanan|Bantul|Sleman
+5|Seni teater adalah seni ...|Pertunjukan drama|Lukisan|Patung|Kerajinan
+5|Drama tanpa kata-kata disebut ...|Pantomim|Opera|Wayang|Sandiwara
+5|Teater tradisional Betawi adalah ...|Lenong|Ludruk|Ketoprak|Randai
+5|Teater tradisional Jawa Timur adalah ...|Ludruk|Lenong|Randai|Ketoprak
+5|Teater tradisional Sumatera Barat adalah ...|Randai|Ludruk|Lenong|Ketoprak
+5|Tangga nada diatonis terdiri atas ... nada|7|5|10|12
+5|Tangga nada pentatonik terdiri atas ... nada|5|7|8|12
+5|Tanda berhenti sejenak dalam musik disebut ...|Pause|Not|Birama|Tempo
+5|Dua laras gamelan Jawa adalah pelog dan ...|Slendro|Diatonis|Mayor|Minor
+5|Alat musik petik tradisional Sunda adalah ...|Kecapi|Sasando|Tifa|Kolintang
+6|Alat musik gesek adalah ...|Biola|Gitar|Piano|Drum
+6|Alat musik tiup logam adalah ...|Terompet|Biola|Piano|Drum
+6|Alat musik yang memiliki tuts adalah ...|Piano|Biola|Seruling|Gitar
+6|Menyanyi seorang diri disebut ...|Solo|Duet|Trio|Paduan suara
+6|Menyanyi berdua disebut ...|Duet|Solo|Trio|Paduan suara
+6|Menyanyi bersama banyak suara disebut ...|Paduan suara|Solo|Duet|Trio
+6|Orang yang menciptakan lagu disebut ...|Komposer|Penyanyi|Dirigen|Penari
+6|Pencipta lagu Halo-Halo Bandung adalah ...|Ismail Marzuki|W.R. Supratman|Ibu Sud|Kusbini
+6|Pelukis Indonesia terkenal abad ke-19 adalah ...|Raden Saleh|Affandi|Basuki Abdullah|S. Sudjojono
+6|Relief Candi Borobudur menceritakan kehidupan ...|Sang Buddha|Raja Majapahit|Nelayan|Pedagang
+6|Patung Garuda Wisnu Kencana berada di ...|Bali|Jawa|Papua|Aceh
+6|Pertunjukan musik dengan banyak alat musik disebut ...|Orkestra|Solo|Duet|Trio
+6|Pertunjukan musik di depan penonton disebut ...|Konser|Pameran|Lomba|Seminar
+6|Menampilkan karya seni rupa kepada umum disebut ...|Pameran|Konser|Pentas|Lomba
+6|Menghargai karya seni disebut ...|Apresiasi|Mengejek|Merusak|Mencuri
+6|Menjaga kelestarian budaya adalah tugas ...|Seluruh bangsa|Pemerintah saja|Seniman saja|Wisatawan saja
+1|Warna daun biasanya ...|Hijau|Merah|Biru|Ungu
+1|Alat musik yang memiliki dawai adalah ...|Gitar|Seruling|Drum|Terompet
+1|Menggunting kertas menggunakan ...|Gunting|Palu|Pensil|Sendok
+2|Alat musik pukul dari logam di Jawa adalah ...|Gong|Seruling|Kecapi|Angklung
+2|Ukiran pada rumah adat termasuk seni ...|Rupa|Musik|Tari|Teater
+3|Tari lemah gemulai dari Jawa Tengah adalah tari ...|Serimpi|Kecak|Piring|Saman
+3|Alat musik tiup khas Minangkabau adalah ...|Saluang|Sasando|Tifa|Angklung
+3|Gambus berasal dari budaya ...|Timur Tengah|Eropa|Amerika|Afrika
+3|Pakaian adat Bali bagi laki-laki memakai ikat kepala ...|Udeng|Koteka|Peci|Blangkon
+4|Wayang golek berasal dari ...|Jawa Barat|Jawa Timur|Bali|Aceh
+4|Wayang golek terbuat dari ...|Kayu|Kulit|Kertas|Kain
+4|Wayang kulit terbuat dari ...|Kulit|Kayu|Kertas|Kain
+4|Motif batik Parang berasal dari ...|Jawa|Papua|Aceh|NTT
+4|Rumah adat Toraja disebut ...|Tongkonan|Joglo|Gadang|Honai
+4|Songket ditenun dengan benang ...|Emas atau perak|Plastik|Karet|Kapas saja
+5|Unsur seni rupa berupa goresan memanjang adalah ...|Garis|Titik|Bidang|Ruang
+5|Kasar atau halusnya permukaan benda disebut ...|Tekstur|Warna|Garis|Ruang
+5|Komposisi dalam gambar berarti ...|Susunan unsur gambar|Warna saja|Alat gambar|Ukuran kertas
+5|Tari kreasi adalah tari yang ...|Diciptakan baru|Paling tua|Tanpa gerak|Tanpa musik
+5|Tari tradisional adalah tari yang ...|Berkembang turun-temurun|Baru dibuat|Tanpa aturan|Dari luar negeri
+6|Tempo lagu yang cepat disebut ...|Allegro|Adagio|Andante|Largo
+6|Tempo lagu yang lambat disebut ...|Adagio|Allegro|Presto|Vivace
+6|Tanda keras dalam musik disebut ...|Forte|Piano|Adagio|Allegro
+6|Tanda lembut dalam musik disebut ...|Piano|Forte|Allegro|Adagio
+6|Tanda semakin keras disebut ...|Crescendo|Decrescendo|Forte|Piano
+6|Tanda semakin lembut disebut ...|Decrescendo|Crescendo|Forte|Piano
+6|Garis paranada berjumlah ...|5|3|4|6
+6|Karya seni dari sampah daur ulang disebut ...|Kerajinan daur ulang|Batik|Wayang|Gamelan
+2|Alat yang dipakai pada tari Piring adalah ...|Piring|Payung|Topeng|Kipas
+2|Alat yang dipakai pada tari Payung adalah ...|Payung|Piring|Topeng|Selendang
+2|Tari Topeng menggunakan ...|Topeng|Piring|Payung|Lilin
+3|Lukisan alam disebut lukisan ...|Pemandangan|Potret|Abstrak|Kolase
+3|Lukisan wajah seseorang disebut ...|Potret|Pemandangan|Abstrak|Kolase
+3|Karya seni dari batu atau kayu yang dipahat disebut ...|Patung|Lukisan|Kolase|Poster
+4|Alat musik petik Kalimantan adalah ...|Sape|Sasando|Tifa|Kolintang
+4|Tari Gantar berasal dari ...|Kalimantan|Papua|Aceh|Jawa
+4|Tari Yospan berasal dari ...|Papua|Aceh|Bali|Sumatera
+4|Alat musik Aceh berupa gendang adalah ...|Rapai|Sasando|Tifa|Kolintang
+5|Melukis dengan cat air disebut teknik ...|Aquarel|Pastel|Arsir|Mozaik
+5|Menggambar dengan titik-titik kecil disebut teknik ...|Pointilis|Arsir|Blok|Gradasi
+5|Karya seni terapan yang indah dan berguna disebut seni ...|Kriya|Murni|Musik|Teater
+6|Tangga nada C mayor dimulai dari nada ...|Do|Re|Mi|Fa
+6|Birama 3/4 memiliki ... ketukan setiap birama|3|4|2|6
+6|Birama 4/4 memiliki ... ketukan setiap birama|4|3|2|6
+6|Birama 2/4 memiliki ... ketukan setiap birama|2|3|4|6`.trim().split('\n').map(l=>l.split('|'));
+function gB(k){const lo=k<=2?1:k<=4?3:5,a=SB.filter(x=>+x[0]>=lo&&+x[0]<=lo+1),x=a[R(0,a.length-1)],o=x.slice(2).sort(()=>Math.random()-.5);return{t:x[1],o,c:o.indexOf(x[2]),ans:x[2],m:'sbd'}}
+const EN=`1|What color is the sky on a sunny day?|Blue|Red|Black|Pink
+1|How do you say 'kucing' in English?|Cat|Dog|Bird|Fish
+1|How do you say 'anjing' in English?|Dog|Cat|Cow|Duck
+1|Which one is a fruit?|Apple|Chair|Book|Table
+1|What is the number 'three'?|3|5|7|9
+1|'Red' means ...|Merah|Biru|Hijau|Kuning
+1|What do you say when you meet someone at 7 a.m.?|Good morning|Good night|Good evening|Good bye
+1|How do you say 'buku' in English?|Book|Pen|Bag|Ruler
+1|'Hello' means ...|Halo|Selamat tinggal|Terima kasih|Maaf
+1|What is the opposite of 'big'?|Small|Tall|Fat|Long
+2|How do you say 'terima kasih' in English?|Thank you|Sorry|Please|Goodbye
+2|Complete: I ... a student.|am|is|are|be
+2|How many legs does a cat have?|Four|Two|Six|Eight
+2|Which animal says 'meow'?|Cat|Dog|Cow|Duck
+2|'Yellow' means ...|Kuning|Merah|Biru|Hijau
+2|The color of grass is ...|Green|Blue|Red|Pink
+2|You see with your ...|Eyes|Ears|Nose|Hands
+2|What day comes after Monday?|Tuesday|Sunday|Friday|Wednesday
+2|'Mother' means ...|Ibu|Ayah|Kakak|Adik
+2|How do you say 'sekolah' in English?|School|House|Market|Hospital
+3|Choose: She ... a teacher.|is|am|are|be
+3|Choose: They ... playing football.|are|is|am|be
+3|What is the plural of 'book'?|Books|Bookes|Bookies|Book
+3|A library is a place to ...|Read books|Cook food|Swim|Buy shoes
+3|12:00 is read as ...|Twelve o'clock|Six o'clock|Nine o'clock|Three o'clock
+3|'Brother' means ...|Saudara laki-laki|Saudara perempuan|Paman|Bibi
+3|The opposite of 'hot' is ...|Cold|Warm|Sunny|Dry
+3|Which one is a vegetable?|Carrot|Banana|Mango|Grape
+3|A doctor works in a ...|Hospital|School|Market|Bank
+3|What do we use to write on paper?|Pen|Spoon|Plate|Shoe
+4|Choose: I ... breakfast every morning.|eat|eats|eating|ate
+4|Choose: He ... to school by bus.|goes|go|going|gone
+4|'Yesterday' means ...|Kemarin|Besok|Hari ini|Lusa
+4|'Tomorrow' means ...|Besok|Kemarin|Hari ini|Minggu lalu
+4|The past tense of 'play' is ...|Played|Plays|Playing|Plaid
+4|Choose: There ... three books on the table.|are|is|am|be
+4|What is the first month of the year?|January|February|March|December
+4|A kitchen is a place to ...|Cook|Sleep|Swim|Study
+4|How many days are there in a week?|Seven|Five|Six|Eight
+4|What is the opposite of 'up'?|Down|Left|Right|Over
+5|Choose: She ... English every day.|studies|study|studying|studied
+5|Choose: We ... football yesterday.|played|play|plays|playing
+5|The past tense of 'go' is ...|Went|Goed|Gone|Going
+5|The past tense of 'eat' is ...|Ate|Eated|Eaten|Eating
+5|Choose: This box is ... than that box.|heavier|heavy|heaviest|more heavy
+5|What is the superlative of 'good'?|Best|Better|Goodest|Most good
+5|What is the comparative of 'big'?|Bigger|Biggest|More big|Bigest
+5|'Always' is an adverb of ...|Frequency|Place|Manner|Color
+5|Choose: He is ... honest boy.|an|a|the|some
+5|The opposite of 'early' is ...|Late|Fast|Slow|Soon
+6|Choose: If it rains, I ... stay at home.|will|would|am|did
+6|Choose: She has ... her homework.|finished|finish|finishing|finishes
+6|Choose: The book is ... the table.|on|at|in|of
+6|The cat ate the fish. Passive: The fish ... by the cat.|was eaten|is eating|ate|eats
+6|Choose: There isn't ... milk in the fridge.|any|some|a|many
+6|'Beautiful' is a/an ...|Adjective|Noun|Verb|Adverb
+6|'Quickly' is a/an ...|Adverb|Noun|Adjective|Verb
+6|The synonym of 'big' is ...|Large|Tiny|Small|Short
+6|The antonym of 'difficult' is ...|Easy|Hard|Heavy|Tough
+6|The word 'went' is the past form of ...|Go|Come|Take|Walk`.trim().split('\n').map(l=>l.split('|'));
+const BI=`1|Huruf pertama dalam alfabet adalah ...|A|B|C|D
+1|Kata yang diawali huruf b adalah ...|Buku|Apel|Ikan|Ular
+1|Lawan kata besar adalah ...|Kecil|Tinggi|Panjang|Lebar
+1|Lawan kata panas adalah ...|Dingin|Hangat|Terang|Kering
+1|Kalimat berita diakhiri dengan tanda ...|Titik|Koma|Garis miring|Kurung
+1|Kata ibu memiliki ... huruf|3|2|4|5
+1|Nama hewan yang diawali huruf k adalah ...|Kucing|Ayam|Sapi|Ikan
+1|Kita mengucapkan ... saat bertemu di pagi hari|Selamat pagi|Selamat malam|Selamat tidur|Sampai jumpa
+1|Huruf vokal adalah a, i, u, e, dan ...|O|B|K|M
+1|Kita mengucapkan ... setelah diberi bantuan|Terima kasih|Maaf|Permisi|Selamat tinggal
+2|Persamaan kata cantik adalah ...|Indah|Jelek|Kotor|Marah
+2|Persamaan kata pandai adalah ...|Pintar|Bodoh|Malas|Lambat
+2|Lawan kata rajin adalah ...|Malas|Pintar|Cepat|Kuat
+2|Lawan kata siang adalah ...|Malam|Pagi|Sore|Petang
+2|Kalimat tanya diakhiri tanda ...|Tanya (?)|Seru (!)|Koma (,)|Titik dua (:)
+2|Kalimat seru diakhiri tanda ...|Seru (!)|Tanya (?)|Koma (,)|Titik (.)
+2|Awal kalimat ditulis dengan huruf ...|Kapital|Kecil|Miring|Tebal
+2|Kata sepatu terdiri atas ... suku kata|3|2|4|1
+2|Kata meja terdiri atas ... suku kata|2|1|3|4
+2|Yang termasuk kata benda adalah ...|Kursi|Berlari|Cantik|Makan
+3|Yang termasuk kata kerja adalah ...|Menulis|Meja|Merah|Besar
+3|Yang termasuk kata sifat adalah ...|Tinggi|Berlari|Buku|Menyanyi
+3|Yang termasuk kata benda adalah ...|Pensil|Duduk|Hijau|Cepat
+3|Kata ganti orang pertama adalah ...|Saya|Kamu|Dia|Mereka
+3|Kata ganti orang kedua adalah ...|Kamu|Saya|Dia|Kami
+3|Kata ganti orang ketiga adalah ...|Dia|Saya|Kamu|Kita
+3|Tanda koma digunakan untuk memisahkan ...|Rincian|Judul|Nomor|Alamat rumah
+3|Kalimat yang diawali huruf kapital dengan benar adalah ...|Dia pergi ke pasar.|dia pergi ke pasar.|dIa pergi ke pasar.|dia Pergi ke pasar.
+3|Singkatan dari Jalan adalah ...|Jl.|Jn.|Ja.|Jaln.
+3|Singkatan dari Bapak adalah ...|Bpk.|Bp|Bpa|Bkp
+4|Kata baku yang benar adalah ...|Apotek|Apotik|Appotek|Apoteck
+4|Kata baku yang benar adalah ...|Februari|Pebruari|Febuari|Februarie
+4|Kata baku yang benar adalah ...|Silakan|Silahkan|Sillakan|Silakhan
+4|Kata baku yang benar adalah ...|Izin|Ijin|Ijn|Isin
+4|Kata baku yang benar adalah ...|Risiko|Resiko|Risco|Riziko
+4|Imbuhan me- pada kata tulis menjadi ...|Menulis|Metulis|Memtulis|Mentulis
+4|Kata berimbuhan ber- adalah ...|Berlari|Lari|Pelari|Larian
+4|Pantun terdiri atas ... baris|4|2|6|8
+4|Dua baris pertama pantun disebut ...|Sampiran|Isi|Judul|Penutup
+4|Dua baris terakhir pantun disebut ...|Isi|Sampiran|Judul|Pembuka
+5|Subjek dalam kalimat 'Adik membaca buku' adalah ...|Adik|Membaca|Buku|Adik membaca
+5|Predikat dalam kalimat 'Ibu memasak nasi' adalah ...|Memasak|Ibu|Nasi|Ibu memasak
+5|Objek dalam kalimat 'Ayah membaca koran' adalah ...|Koran|Ayah|Membaca|Ayah membaca
+5|Ide pokok paragraf disebut juga ...|Gagasan utama|Judul|Kesimpulan akhir|Ilustrasi
+5|Kalimat yang menjelaskan ide pokok disebut kalimat ...|Penjelas|Utama|Tanya|Seru
+5|Pantun nasihat berisi ...|Nasihat|Lelucon|Teka-teki|Perkenalan
+5|Puisi terikat oleh ...|Rima dan irama|Cerita panjang|Percakapan|Kalimat tunggal
+5|Majas yang membandingkan dengan kata seperti disebut ...|Perumpamaan|Hiperbola|Personifikasi|Ironi
+5|Majas yang melebih-lebihkan disebut ...|Hiperbola|Personifikasi|Perumpamaan|Ironi
+5|Kalimat majemuk terdiri atas ... pola kalimat atau lebih|2|1|0|5
+6|Majas yang memberi sifat manusia pada benda mati adalah ...|Personifikasi|Hiperbola|Perumpamaan|Ironi
+6|Angin berbisik di telingaku adalah majas ...|Personifikasi|Hiperbola|Perumpamaan|Ironi
+6|Surat untuk keperluan resmi disebut surat ...|Dinas|Pribadi|Cinta|Pos
+6|Surat untuk teman atau keluarga disebut surat ...|Pribadi|Dinas|Resmi|Niaga
+6|Teks yang menceritakan peristiwa nyata disebut teks ...|Berita|Dongeng|Puisi|Pantun
+6|Teks yang berisi langkah-langkah disebut teks ...|Prosedur|Berita|Puisi|Dongeng
+6|Teks yang menjelaskan ciri benda atau tempat disebut teks ...|Deskripsi|Prosedur|Berita|Pantun
+6|Pesan yang ingin disampaikan penulis dalam cerita disebut ...|Amanat|Tema|Latar|Tokoh
+6|Tempat dan waktu terjadinya cerita disebut ...|Latar|Amanat|Tokoh|Alur
+6|Urutan peristiwa dalam cerita disebut ...|Alur|Latar|Tokoh|Amanat`.trim().split('\n').map(l=>l.split('|'));
+function gK(k){const lo=k<=2?1:k<=4?3:5,a=BI.filter(x=>+x[0]>=lo&&+x[0]<=lo+1),x=a[R(0,a.length-1)],o=x.slice(2).sort(()=>Math.random()-.5);return{t:x[1],o,c:o.indexOf(x[2]),ans:x[2],m:'bin'}}
+function gE(k){const lo=k<=2?1:k<=4?3:5,a=EN.filter(x=>+x[0]>=lo&&+x[0]<=lo+1),x=a[R(0,a.length-1)],o=x.slice(2).sort(()=>Math.random()-.5);return{t:x[1],o,c:o.indexOf(x[2]),ans:x[2],m:'eng'}}
+function popup(p,t,c){const e=document.createElement('div');e.className='pop '+(c||'');e.textContent=t;p.el.appendChild(e);setTimeout(()=>e.remove(),1100)}
+function flash(p,c){const e=p.fl;e.className='fl';void e.offsetWidth;e.className='fl '+c}
+function togglePP(p){tone(p.paused?700:400,0,.1,'sine',.08);p.paused=!p.paused;p.l=p.r=0;p.eb.textContent=p.paused?'▶ Lanjut':'⏸ Jeda';p.ej.style.display=p.paused?'block':'none'}
+function genQ(k0,seen){const sj=S.mapel==='mix'?['mtk','ipas','pkn','pai','pjok','sbd','eng','bin'][R(0,7)]:S.mapel;for(let t=0;t<30;t++){const k=LV[S.level][R(0,1)],q=sj==='ipas'?gI(k):sj==='pkn'?gP(k):sj==='pai'?gA(k):sj==='pjok'?gJ(k):sj==='sbd'?gB(k):sj==='eng'?gE(k):sj==='bin'?gK(k):g1(k);if(!seen.has(q.t)||t>25){seen.add(q.t);return q}}}
+function mkn(t,ans){const ds=new Set([ans]),sp=Math.max(3,Math.round(ans*.1));while(ds.size<4){const v=ans+(R(0,1)?1:-1)*(R(0,2)?R(1,sp):[1,2,10][R(0,2)]);if(v>=0)ds.add(v)}const op=[...ds].filter(v=>v!==ans).sort(()=>Math.random()-.5),c=R(0,3);op.splice(c,0,ans);return{t,o:op,c,ans,m:'mtk'}}
+function gN(k){const gc=(a,b)=>b?gc(b,a%b):a,T=[];
+ if(k<=2)T.push(()=>{const a=R(3,15),b=R(1,a-1);return mkn(`Ani punya ${a} apel, memberi ${b} apel ke adik. Sisa apel = ...`,a-b)},()=>{const a=R(2,12),b=R(2,12);return mkn(`Ada ${a} burung di pohon, datang ${b} burung lagi. Jumlah burung = ...`,a+b)},()=>{const n=R(2,98);return mkn(`Bilangan setelah ${n} adalah ...`,n+1)},()=>{const n=R(2,99);return mkn(`Bilangan sebelum ${n} adalah ...`,n-1)},()=>{const a=R(1,10),d=R(1,5);return mkn(`Lanjutkan pola: ${a}, ${a+d}, ${a+2*d}, ${a+3*d}, ...`,a+4*d)},()=>{const a=R(1,5),b=R(2,5);return mkn(`${b} kantong, tiap kantong berisi ${a} permen. Jumlah permen = ...`,a*b)});
+ else if(k<=4)T.push(()=>{const s=R(2,20);return mkn(`Keliling persegi dengan sisi ${s} cm = ... cm`,4*s)},()=>{const p=R(3,15),l=R(2,p);return mkn(`Luas persegi panjang ${p} cm × ${l} cm = ... cm²`,p*l)},()=>{const n=R(2,9);return mkn(`${n} jam = ... menit`,60*n)},()=>{const a=R(3,12),b=R(3,12);return mkn(`Ada ${a} kotak, tiap kotak berisi ${b} kue. Jumlah kue = ...`,a*b)},()=>{const n=R(11,99)*10+R(1,4);return mkn(`Pembulatan ${n} ke puluhan terdekat = ...`,Math.round(n/10)*10)},()=>{const a=R(3,9),n=R(3,8);return mkn(`Kelipatan ${a} yang ke-${n} adalah ...`,a*n)},()=>{const a=R(2,9)*100,b=R(2,9)*100;return mkn(`Rp${a} + Rp${b} = Rp ...`,a+b)},()=>{const n=R(2,10);return mkn(`1 minggu = 7 hari. ${n} minggu = ... hari`,7*n)});
+ else T.push(()=>{const a=R(2,15)*2,t=R(3,20);return mkn(`Luas segitiga alas ${a} cm, tinggi ${t} cm = ... cm²`,a*t/2)},()=>{const s=R(2,12);return mkn(`Volume kubus dengan rusuk ${s} cm = ... cm³`,s**3)},()=>{const a=R(4,20),b=R(4,20);return mkn(`KPK dari ${a} dan ${b} = ...`,a*b/gc(a,b))},()=>{const a=R(2,12),b=R(2,12),f=R(2,6);return mkn(`FPB dari ${a*f} dan ${b*f} = ...`,gc(a*f,b*f))},()=>{const x=R(2,20)*4;return mkn(`3/4 dari ${x} = ...`,x*3/4)},()=>{const a=R(10,50),d=R(1,9)*3;return mkn(`Rata-rata dari ${a}, ${a+d}, dan ${a+2*d} = ...`,a+d)},()=>{const v=R(4,12)*10,t=R(2,6);return mkn(`Mobil melaju ${v} km/jam selama ${t} jam. Jarak = ... km`,v*t)},()=>{const d=R(1,6)*14;return mkn(`Keliling lingkaran berdiameter ${d} cm (π = 22/7) = ... cm`,d*22/7)},()=>{const n=R(2,15);return mkn(`Akar kuadrat dari ${n*n} = ...`,n)},()=>{const n=R(11,30);return mkn(`${n}² = ...`,n*n)});
+ return T[R(0,T.length-1)]()}
+function puff(w,x,y,v,c){for(const q of w.parts){if(q.t<=0){q.m.visible=true;q.m.material.color.set(c||0xffffff);q.m.position.set(x,y,2.4);q.v.set((Math.random()-.5)*.8,2.2,v);q.t=.5;return}}}
+function gM(k){const T=[],z=n=>String(n).padStart(2,'0');
+ if(k<=2)T.push(()=>mkn('Segitiga memiliki ... sisi',3),()=>mkn('Persegi memiliki ... sudut',4),()=>{const a=R(5,19),b=R(1,4);return mkn(`${a} − ${b} = ...`,a-b)},()=>{const a=R(1,9);return mkn(`${a} × 2 = ...`,a*2)},()=>{const a=R(1,8)*2;return mkn(`Bilangan genap setelah ${a} adalah ...`,a+2)},()=>{const n=R(10,60);return mkn(`Bilangan yang lebih besar 1 dari ${n} adalah ...`,n+1)},()=>mkn('1 tahun ada ... bulan',12),()=>{const a=R(2,9);return mkn(`${a} + ${a} + ${a} = ...`,3*a)},()=>{const a=R(10,50),b=R(1,9);return mkn(`${a} + ${b} = ...`,a+b)},()=>{const n=R(2,10);return mkn(`${n} pasang sepatu = ... sepatu`,2*n)},()=>{const n=R(2,12);return mkn(`Setengah dari ${2*n} adalah ...`,n)},()=>{const n=R(2,20);return mkn(`Dua kali ${n} adalah ...`,2*n)},()=>{const n=R(2,10);return mkn(`Ada ${n} sepeda. Setiap sepeda punya 2 roda. Jumlah roda = ...`,2*n)},()=>{const n=R(2,9);return mkn(`${n} anak punya ... jari tangan`,10*n)},()=>{const n=R(1,15);return mkn(`Bilangan genap setelah ${2*n} adalah ...`,2*n+2)});
+ else if(k<=4)T.push(()=>mkn('Setengah jam = ... menit',30),()=>{const n=R(2,9);return mkn(`${n} jam 30 menit = ... menit`,60*n+30)},()=>{const a=R(2,9),b=R(2,9),c=R(2,9);return mkn(`${a} × ${b} + ${c} = ...`,a*b+c)},()=>{const n=R(2,12);return mkn(`${n} dasawarsa = ... tahun`,10*n)},()=>{const n=R(2,9);return mkn(`${n} tahun = ... bulan`,12*n)},()=>{const n=R(2,9);return mkn(`${n} meter = ... cm`,100*n)},()=>{const n=R(2,9);return mkn(`${n} kg = ... gram`,1000*n)},()=>{const n=R(2,9);return mkn(`${n} lusin = ... buah`,12*n)},()=>{const s=R(3,25);return mkn(`Keliling segitiga sama sisi dengan sisi ${s} cm = ... cm`,3*s)},()=>{const a=R(10,99),b=R(10,99);return mkn(`${a} + ${b} = ...`,a+b)},()=>{const a=R(3,9),b=R(11,19);return mkn(`${a} × ${b} = ...`,a*b)},()=>{const a=R(2,9)*10,b=R(2,9)*10;return mkn(`Ani membaca ${a} halaman, Budi membaca ${b} halaman. Jumlah halaman = ...`,a+b)},()=>{const t=R(2,9),k=R(2,9);return mkn(`Ada ${t} kantong, tiap kantong berisi ${k} jeruk. Jika 3 jeruk busuk, jeruk bagus = ...`,t*k-3)},()=>{const a=R(10,50),b=R(2,9);return mkn(`Uang Ayah Rp${a}.000, dipakai membeli buku Rp${b}.000. Sisa uang = Rp ... ribu`,a-b)},()=>{const n=R(2,15);return mkn(`Sepertiga dari ${3*n} adalah ...`,n)});
+ else T.push(()=>{const n=R(2,15);return mkn(`Skala peta 1 : 100.000. Jarak di peta ${n} cm = ... km`,n)},()=>{const r=R(1,5)*7;return mkn(`Luas lingkaran berjari-jari ${r} cm (π = 22/7) = ... cm²`,22*r*r/7)},()=>{const p=R(2,9),l=R(2,9),t=R(2,9);return mkn(`Volume balok ${p} × ${l} × ${t} cm = ... cm³`,p*l*t)},()=>mkn('Bilangan prima setelah 20 adalah ...',23),()=>{const a=R(2,12),b=R(2,12);return mkn(`${a}² + ${b}² = ...`,a*a+b*b)},()=>{const a=R(2,9),b=R(2,9);return mkn(`${a}³ + ${b} = ...`,a**3+b)},()=>{const h=R(1,10)*8;return mkn(`Bak berisi ${h} liter air. Dipakai 25%. Sisa air = ... liter`,h*3/4)},()=>{const a=R(2,20)*5;return mkn(`${a}% dari 200 = ...`,a*2)},()=>{const a=R(2,9),b=R(2,9),c=R(2,9);return mkn(`${a} × (${b} + ${c}) = ...`,a*(b+c))},()=>{const x=R(2,12);return mkn(`Jika 2x + 4 = ${2*x+4}, maka x = ...`,x)},()=>{const a=R(2,9),b=R(2,9);return mkn(`${a+b}² − ${a}² = ...`,(a+b)**2-a*a)},()=>{const p=R(2,9)*10,q=R(2,9);return mkn(`${p}% dari ${q*10} = ...`,p*q/10)},()=>{const n=R(3,20);return mkn(`Rata-rata dari ${n}, ${n+2}, ${n+4}, ${n+6}, dan ${n+8} = ...`,n+4)},()=>{const a=R(2,6),b=a+R(1,4),m=R(2,9);return mkn(`Uang dibagi dengan perbandingan ${a} : ${b}. Jumlah uang Rp${(a+b)*m}.000. Bagian terkecil = Rp ... ribu`,a*m)},()=>{const h=R(1,10)*5000;return mkn(`Diskon 20% dari harga Rp${h} = Rp ...`,h/5)},()=>{const h1=R(6,9),m1=R(0,11)*5,h2=h1+R(1,3),m2=R(0,11)*5;return mkn(`Dari pukul ${h1}.${z(m1)} sampai ${h2}.${z(m2)} = ... menit`,(h2-h1)*60+m2-m1)});
+ return T[R(0,T.length-1)]()}
+function g1(k){const r=Math.random();if(r<.3)return gM(k);if(r<.6)return gN(k);return g0(k)}
+function g0(k){
+ const Mx=[10,50,200,1000,5000,10000][k-1],o=[['+','-'],['+','-','+'],['+','-','x'],['x','/','+','-'],['mix','x','/','%','+'],['mix2','x','/','%','mix','-']][k-1],p=o[R(0,o.length-1)];let t,a,b,c,ans;
+ if(p=='+'){a=R(1,Mx);b=R(1,Mx);t=a+' + '+b;ans=a+b}
+ else if(p=='-'){a=R(2,Mx);b=R(1,a-1);t=a+' − '+b;ans=a-b}
+ else if(p=='x'){a=k<4?R(2,9):k==4?R(3,12):k==5?R(11,60):R(12,99);b=k<4?R(2,9):k==4?R(3,15):k==5?R(3,12):R(11,30);t=a+' × '+b;ans=a*b}
+ else if(p=='/'){b=R(2,k<5?10:12);ans=R(2,k<5?12:k==5?40:99);a=b*ans;t=a+' ÷ '+b}
+ else if(p=='%'){const pc=[10,20,25,50,75][R(0,4)];a=R(1,k==5?10:20)*20;ans=pc*a/100;t=pc+'% dari '+a}
+ else if(p=='mix'){a=R(5,50);b=R(2,9);c=R(2,9);t=a+' + '+b+' × '+c;ans=a+b*c}
+ else{a=R(2,30);b=R(2,30);c=R(2,9);t='('+a+' + '+b+') × '+c;ans=(a+b)*c}
+ const ds=new Set([ans]),sp=Math.max(3,Math.round(ans*.1));
+ while(ds.size<4){const v=ans+(R(0,1)?1:-1)*(R(0,2)?R(1,sp):[1,2,10][R(0,2)]);if(v>=0)ds.add(v)}
+ const op=[...ds].filter(v=>v!==ans).sort(()=>Math.random()-.5),ci=R(0,3);op.splice(ci,0,ans);
+ return{t:t+' = ?',o:op,c:ci,ans,m:'mtk'};
+}
+
+/* ===== AUDIO ===== */
+let AC,mg,eg,wg,ENG,NB,SG=1,mst=0;
+function ainit(){if(AC){AC.resume&&AC.resume();return}
+ try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+ mg=AC.createGain();const cp=AC.createDynamicsCompressor();mg.connect(cp);cp.connect(AC.destination);avol();
+ const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=55;const o2=AC.createOscillator();o2.type='square';o2.frequency.value=82.6;const f=AC.createBiquadFilter();f.frequency.value=300;eg=AC.createGain();eg.gain.value=0;o.connect(f);o2.connect(f);f.connect(eg);eg.connect(mg);o.start();o2.start();const lf=AC.createOscillator(),lg=AC.createGain();lf.frequency.value=13;lg.gain.value=.012;lf.connect(lg);lg.connect(eg.gain);lf.start();ENG=o;
+ const b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+ NB=b;const n=AC.createBufferSource();n.buffer=b;n.loop=true;const bf=AC.createBiquadFilter();bf.type='bandpass';bf.frequency.value=700;wg=AC.createGain();wg.gain.value=0;n.connect(bf);bf.connect(wg);wg.connect(mg);n.start();
+ setInterval(music,240)}
+function avol(){if(mg)mg.gain.value=S.mute?0:S.vol}
+function tone(f,dl,du,ty,g){if(!AC)return;const o=AC.createOscillator(),a=AC.createGain();o.type=ty;o.frequency.value=f;const t=AC.currentTime+dl;a.gain.setValueAtTime(g,t);a.gain.exponentialRampToValueAtTime(.001,t+du);o.connect(a);a.connect(mg);o.start(t);o.stop(t+du+.05)}
+const CH=[[261.6,329.6,392],[196,246.9,293.7],[220,261.6,329.6],[174.6,220,261.6]],PS=[523.3,587.3,659.3,784,880];
+function music(){if(!AC||state==='pause'||state==='load')return;const s=mst++%32,c=CH[s>>3],pl=state==='play';tone(c[[0,1,2,1,2,1,2,1][s%8]]*2,0,.35,'triangle',.07);if(s%4==0)tone(c[0]/2,0,.45,'sine',.2);if(s%8==0||s%8==3||(pl&&s%8==5))tone(PS[R(0,4)]*(s>15?1.5:1),0,.3,'sine',.07);if(pl&&s%2)hat();if(s%8==0)c.forEach(f=>tone(f,0,1.9,'sine',.03));if(pl&&s%4==0)kick();if(S.dunia!=='malam'&&Math.random()<.05)chirp();if(S.dunia==='malam'&&Math.random()<.4)cricket();if(S.dunia==='salju'&&Math.random()<.1)chime();if(S.dunia==='ajaib'&&Math.random()<.12)sparkle()}
+function hat(){if(!NB)return;const n=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();n.buffer=NB;f.type='highpass';f.frequency.value=7000;g.gain.value=.03;n.connect(f);f.connect(g);g.connect(mg);n.start(AC.currentTime,Math.random(),.04)}
+function bo(a,b,d,g){if(!AC)return;const o=AC.createOscillator(),x=AC.createGain(),t=AC.currentTime;o.type='sawtooth';o.frequency.setValueAtTime(a,t);o.frequency.exponentialRampToValueAtTime(b,t+d);x.gain.setValueAtTime(g,t);x.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(x);x.connect(mg);o.start(t);o.stop(t+d+.05)}
+function wh(gv){gv=gv||.25;if(!NB)return;const n=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain(),t=AC.currentTime;n.buffer=NB;f.type='bandpass';f.Q.value=2;f.frequency.setValueAtTime(400,t);f.frequency.exponentialRampToValueAtTime(3000,t+.35);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(gv*SG,t+.12);g.gain.exponentialRampToValueAtTime(.001,t+.4);n.connect(f);f.connect(g);g.connect(mg);n.start(t,Math.random());n.stop(t+.45)}
+function go(){[392,523,659,784,1047].forEach((f,i)=>tone(f,i*.1,.3,'triangle',.18*SG))}
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button');if(b){ainit();tone(520,0,.05,'square',.04);tone(780,.05,.07,'square',.04)}});
+function cricket(){for(let i=0;i<3;i++)tone(4200,i*.05,.03,'square',.012)}
+function chime(){tone([1047,1319,1568,2093][R(0,3)],0,1.2,'sine',.04)}
+function okc(){const m=1+Math.min(window.CMB||0,6)*.06;[523,659,784,1047,1319,1568].forEach((f,i)=>{tone(f*m,i*.06,.35,'sine',.2*SG);tone(f*2*m,i*.06,.25,'triangle',.05*SG)});tone(131,0,.5,'sine',.15*SG)}
+function sparkle(){for(let i=0;i<7;i++)tone(2000+R(0,2200),.05+i*.045,.12,'sine',.05*SG)}
+function chirp(){const f=2400+R(0,800);tone(f,0,.07,'sine',.04);tone(f*1.25,.09,.08,'sine',.04);tone(f,.2,.07,'sine',.03)}
+function kick(){if(!AC)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+.15);g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(mg);o.start(t);o.stop(t+.25)}
+function clap(){if(!NB)return;for(let i=0;i<22;i++){const n=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain(),t=AC.currentTime+.3+i*.1+Math.random()*.05;n.buffer=NB;f.type='bandpass';f.frequency.value=1800+R(0,1500);g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.07);n.connect(f);f.connect(g);g.connect(mg);n.start(t,Math.random(),.08)}}
+const sfx={near:()=>wh(.07),ok:()=>{sparkle();okc()},ok0:()=>[523,659,784,1047,1319].forEach((f,i)=>{tone(f,i*.07,.3,'sine',.22*SG);tone(f*2,i*.07,.2,'triangle',.05*SG)}),bad:()=>{bo(330,110,.5,.2*SG);tone(130,.2,.4,'square',.08*SG);tone(247,.3,.25,'triangle',.1*SG);tone(220,.5,.5,'triangle',.1*SG)},pass:()=>wh(),win:()=>[523,659,784,1047,784,1047,1319,1568].forEach((f,i)=>{tone(f,i*.13,.35,'triangle',.22);tone(f/2,i*.13,.35,'sine',.1)})};
+
+/* ===== HUD ===== */
+function buildHUD(){const h=$('#hud');h.innerHTML='';
+ P.forEach((p,i)=>{const d=document.createElement('div');d.className='pv';d.id='pv'+i;
+  d.innerHTML=`<div class="pn" style="background:${CS[i]}">${esc(S.names[i]||'Pemain '+(i+1))}</div><div class="pq"></div><div class="pb"><i></i></div><div class="fl"></div><div class="pf"></div><div class="ps"></div><button class="pp">⏸ Jeda</button><div class="pj">⏸ Dijeda — tekan Lanjut untuk meneruskan</div><button class="cb l">◀</button><button class="cb r">▶</button>`;
+  h.appendChild(d);p.el=d;p.eq=d.querySelector('.pq');p.eq.style.borderBottom='5px solid '+CS[i];p.eb=d.querySelector('.pp');p.fl=d.querySelector('.fl');p.pb=d.querySelector('.pb i');p.ej=d.querySelector('.pj');p.eb.onclick=()=>togglePP(p);p.ef=d.querySelector('.pf');p.es=d.querySelector('.ps');
+  d.querySelectorAll('.cb').forEach(b=>{const k=b.classList.contains('l')?'l':'r';
+   b.addEventListener('pointerdown',e=>{e.preventDefault();p[k]=1;try{b.setPointerCapture(e.pointerId)}catch(x){}});
+   for(const ev of['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>{p[k]=0});
+   b.addEventListener('contextmenu',e=>e.preventDefault())});hudS(p)});layout()}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function layout(){W=innerWidth;H=innerHeight;renderer.setSize(W,H);document.body.dataset.np=P.length||1;
+ P.forEach((p,i)=>{const r=rc(S.np,i),e=p.el;if(!e)return;e.style.cssText=`left:${r[0]*100}%;top:${r[1]*100}%;width:${r[2]*100}%;height:${r[3]*100}%;--u:${Math.min(r[2]*W,r[3]*(H-44))/100}px;--qh:${shF(r[3]*(H-44))}px`})}
+const hudQ=p=>{hudQ0(p);p.eq.querySelector('small').textContent=`${p.qn}/${S.total} ${({ipas:'🔬',pkn:'🇮🇩',pai:'🕌',pjok:'🏅',sbd:'🎨',eng:'🇬🇧',bin:'📖',mtk:'🔢'})[p.q.m]}`;fit(p.eq,p.eq.querySelector('b'));p.pb.style.width=(p.qn/S.total*100)+'%'};const hudQ0=p=>{p.eq.innerHTML=`<small>Soal ${p.qn}/${S.total} • ${p.q.m==='ipas'?'🔬 IPAS':p.q.m==='pkn'?'🇮🇩 Pancasila':'🔢 Matematika'}</small><b>${esc(p.q.t)}</b>`};
+const hudS=p=>{p.es.classList.remove('bump');void p.es.offsetWidth;p.es.classList.add('bump');p.es.textContent=`⭐ ${p.score}  ✔${p.ok}  ✖${p.bad}`};
+function hudF(p,t,bg){if(!t){p.ef.style.display='none';return}p.ef.style.display='flex';p.ef.style.background=bg;p.ef.style.fontSize='';p.ef.textContent=t;fit(p.ef)}
+
+/* ===== PERMAINAN ===== */
+const SPD=()=>S.kelas<=2?18:22;
+function spawnQ(p){p.q=genQ(S.kelas,p.seen);p.qn++;p.q.o.forEach((v,k)=>setGate(p.ga[k],String(v)));p.nr=0;p.ga.forEach(x=>x.g.scale.setScalar(1));p.gz=-120;p.gg.position.z=-120;p.gg.visible=true;p.ph='run';hudQ(p);hudF(p,'')}
+function evalQ(p){let k=0,bd=99;LX.forEach((x,i)=>{const d=Math.abs(x-p.x);if(d<bd){bd=d;k=i}});
+ sfx.pass();const pos=new THREE.Vector3(p.x,0,-1);
+ if(k===p.q.c){p.score+=100;p.ok++;p.roll=Math.PI*2;p.kick=1;p.shk=1;flash(p,'ok');popup(p,'+100');p.cb++;window.CMB=p.cb;if(p.cb>2)sparkle();sfx.ok();burst(p.w,[0xffe45e,0xff5252,0x3d8bff,0x2ecc71,0xffffff],pos,44,11);hudF(p,'✅ BENAR! +100'+(p.cb>1?'  🔥 x'+p.cb:''),'#14a047');p.tm=2}
+ else{p.bad++;p.shake=1.2;flash(p,'bad');popup(p,'✖','bad');p.cb=0;sfx.bad();burst(p.w,[0x555555,0x888888,0xff5252],pos,18,4);hudF(p,`❌ Jawaban benar: ${'ABCD'[p.q.c]} = ${p.q.ans}`,'#d63232');p.tm=3}
+ p.ph='fb';hudS(p)}
+function stepP(p,dt,t){
+ p.vx+=((p.r-p.l)*17-p.vx)*Math.min(1,dt*7);p.x=Math.max(-11.5,Math.min(11.5,p.x+p.vx*dt));if(Math.abs(p.x)>=11.5)p.vx=0;
+ if(p.ph==='wait'&&!p.done){p.tm-=dt;if(p.tm<=0){if(p.qn>=S.total){p.done=true;hudF(p,'🏁 Selesai! Menunggu pemain lain…','#1a6fd1')}else spawnQ(p)}}
+ else if(p.ph!=='wait'){p.gz+=SPD()*dt;p.gg.position.z=p.gz;p.ga.forEach((x,i)=>{x.og.rotation.z+=dt*2.5;x.lb.position.y=6.1+Math.sin(T*3+i)*.15});if(p.ph==='run'&&!p.nr&&p.gz>-40){p.nr=1;sfx.near()}if(p.ph==='run'&&p.gz>=0)evalQ(p);
+  if(p.ph==='fb'){p.tm-=dt;p.ga[p.q.c].g.scale.setScalar(1+.12*Math.sin(T*14));if(p.gz>16)p.gg.visible=false;if(p.tm<=0){p.ph='wait';p.tm=.3;p.gg.visible=false;if(p.qn<S.total)hudF(p,'')}}}
+ p.pf=(p.pf||0)-dt;if(p.pf<=0){p.pf=.07;puff(p.w,p.x,p.pl.position.y,SPD(),p.cb>=3?(Math.random()<.5?0xffe45e:COL[p.i]):0xffffff)}poseP(p,t,dt);
+}
+function poseP(p,t,dt){const pl=p.pl;if(p.roll>0){p.roll=Math.max(0,p.roll-dt*7)}if(p.shake>0)p.shake=Math.max(0,p.shake-dt);
+ pl.position.set(p.x+(p.shake?Math.sin(t*60)*.25:0),Math.sin(t*2+p.i)*.4+(p.shake?-.4:0),0);
+ pl.rotation.z=-p.vx*.035+(p.roll?(Math.PI*2-p.roll):0)+(p.shake?Math.sin(t*40)*.25:0);pl.rotation.x=Math.sin(t*1.6+p.i)*.05-(p.shake?.2:0);
+ pl.userData.prop.rotation.z+=dt*40;p.bl.position.x=p.x;p.kick=Math.max(0,(p.kick||0)-dt*1.5);p.intro=Math.max(0,(p.intro||0)-dt*.7);const trm=pl.userData.trm;pl.userData.sc.rotation.y=Math.sin(t*14+p.i)*.35;if(p.cb>=3){trm.color.setHSL((t*.8)%1,1,.6);trm.opacity=.7}else{trm.color.set(0xffffff);trm.opacity=.35}p.cam.fov=68+p.kick*12;if(p.shk>0){p.shk=Math.max(0,p.shk-dt*1.6);p.sh.position.set(p.x,0,-1);p.sh.scale.setScalar(.5+(1-p.shk)*3.5);p.sh.material.opacity=p.shk*.8}
+ p.cam.position.set(p.x*.6+(p.shake?Math.sin(t*50)*.35:0),3.2+Math.sin(t*2+p.i)*.15+(p.shake?Math.cos(t*43)*.25:0)+p.intro*p.intro*14,11.5+p.intro*p.intro*28);p.cam.lookAt(p.x*.85,1.6,-22);p.cam.rotation.z-=p.vx*.004}
+
+function startGame(){
+ state='load';$('#menu').classList.add('hide');$('#res').classList.add('hide');$('#load').classList.remove('hide');$('#lb').style.width='30%';
+ setTimeout(()=>{ainit();setTimeout(go,500);const q=S.np>4?.5:S.np>2?.8:1;SG=1/Math.sqrt(S.np);renderer.setPixelRatio(S.np>4?1:Math.min(devicePixelRatio,1.5));P=[];for(let i=0;i<S.np;i++)P.push(newPlayer(i,TH[S.dunia],q));$('#lb').style.width='100%';buildHUD();
+  setTimeout(()=>{$('#load').classList.add('hide');$('#bar').classList.remove('hide');state='play';endT=0},350)},120)}
+function toMenu(){state='menu';P=[];$('#hud').innerHTML='';for(const id of['#pause','#res','#bar'])$(id).classList.add('hide');$('#menu').classList.remove('hide');document.body.dataset.np=1;mkDemo();showP('m-main');sum()}
+function pause(on){if(on&&state==='play'){state='pause';$('#pause').classList.remove('hide')}else if(!on&&state==='pause'){state='play';$('#pause').classList.add('hide')}}
+function finish(){state='result';sfx.win();sparkle();clap();$('#bar').classList.add('hide');
+ const r=P.map(p=>({p,pct:p.qn?Math.round(p.ok/S.total*100):0})).sort((a,b)=>b.p.score-a.p.score||b.pct-a.pct);
+ const md=['🥇','🥈','🥉','4️⃣'],b=best();let top=r[0].p.score;if(!b['k'+S.kelas]||top>b['k'+S.kelas]){b['k'+S.kelas]=top;try{localStorage.pc_best=JSON.stringify(b)}catch(e){}}
+ $('#rt').innerHTML='<table><tr><th>#</th><th>Nama</th><th>Tingkat</th><th>Soal</th><th>Benar</th><th>Salah</th><th>%</th><th>Skor</th></tr>'+r.map((x,i)=>`<tr><td>${md[i]}</td><td style="color:${CS[x.p.i]}">${esc(S.names[x.p.i]||'Pemain '+(x.p.i+1))}</td><td>${LB[S.level]} ${({ipas:'IPAS',pkn:'Pancasila',pai:'PAI',pjok:'PJOK',sbd:'Seni Budaya',eng:'English',bin:'B. Indonesia',mix:'Mix'})[S.mapel]||'MTK'}</td><td>${S.total}</td><td>${x.p.ok}</td><td>${x.p.bad}</td><td>${x.pct}%</td><td>${x.p.score}</td></tr>`).join('')+'</table>';
+ $('#res').classList.remove('hide');
+ for(const p of P){p.vx=0}}
+function mkDemo(){demo=newPlayer(0,TH[S.dunia]);demo.cam.aspect=1}
+
+/* ===== LOOP ===== */
+let last=0;
+function frame(ms){requestAnimationFrame(frame);const dt=Math.min(.05,(ms-last)/1000||0);last=ms;T+=dt;
+ const playing=state==='play';M.wf.opacity=.7+.15*Math.sin(T*7);
+ if(playing){for(const p of P){if(p.paused)continue;stepP(p,dt,T);updW(p.w,dt,SPD())}
+  if(P.length&&P.every(p=>p.done)&&P.every(p=>p.ph==='wait')){endT+=dt;if(endT>1.5)finish()}}
+ else if(state==='pause'){}
+ if(demo){demo.x=Math.sin(T*.7)*7;demo.vx=Math.cos(T*.7)*5;poseP(demo,T,dt);updW(demo.w,dt,14)}
+ if(AC){eg.gain.value=playing?.07/(1+S.np*.15):0;wg.gain.value=playing?.05+.025*Math.sin(T*.7):.02;ENG.frequency.value=playing?55+Math.sin(T)*3+P.reduce((a,p)=>a+Math.abs(p.vx),0)/P.length*1.2:50}
+ renderer.setScissorTest(true);renderer.setViewport(0,0,W,H);renderer.setScissor(0,0,W,H);renderer.setClearColor(0x0b2a4a);renderer.clear();
+ const draw=(w,cam,r,st)=>{const tb=(state==='menu'||state==='load')?0:44,Hh=H-tb,x=r[0]*W,y=H-tb-(r[1]+r[3])*Hh,ww=r[2]*W,hh=r[3]*Hh-(st?shF(r[3]*Hh):0);renderer.setViewport(x,y,ww,hh);renderer.setScissor(x,y,ww,hh);cam.aspect=ww/hh;cam.updateProjectionMatrix();renderer.render(w.sc,cam)};
+ if(state==='play'||state==='pause'||state==='result'){P.forEach((p,i)=>draw(p.w,p.cam,rc(S.np,i),1));if(demo){const cap=S.np<=2?S.np:S.np<=4?4:S.np<=6?6:8;for(let i=S.np;i<cap;i++)draw(demo.w,demo.cam,rc(S.np,i))}}
+ else if(demo)draw(demo.w,demo.cam,rc(1,0));
+}
+
+/* ===== INPUT ===== */
+const KM={KeyQ:[4,'l'],KeyE:[4,'r'],KeyU:[5,'l'],KeyO:[5,'r'],KeyZ:[6,'l'],KeyC:[6,'r'],KeyB:[7,'l'],KeyM:[7,'r'],KeyA:[0,'l'],KeyD:[0,'r'],ArrowLeft:[1,'l'],ArrowRight:[1,'r'],KeyJ:[2,'l'],KeyL:[2,'r'],Numpad4:[3,'l'],Numpad6:[3,'r']};
+const KP={KeyS:0,ArrowDown:1,KeyK:2,Numpad5:3,KeyW:4,KeyI:5,KeyX:6,KeyN:7};
+addEventListener('keydown',e=>{const pz=KP[e.code];if(pz!==undefined&&P[pz]&&!e.repeat&&state==='play'){e.preventDefault();togglePP(P[pz])}const m=KM[e.code];if(m){if(P[m[0]])P[m[0]][m[1]]=1;if(state==='play')e.preventDefault()}
+ if((e.code==='Escape'||e.code==='KeyP')&&!e.repeat){state==='play'?pause(true):pause(false)}});
+addEventListener('keyup',e=>{const m=KM[e.code];if(m&&P[m[0]])P[m[0]][m[1]]=0});
+addEventListener('blur',()=>{P.forEach(p=>{p.l=p.r=0});pause(true)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause(true)});
+addEventListener('resize',layout);
+
+/* ===== MENU ===== */
+function showP(id){document.querySelectorAll('#menu .panel').forEach(p=>p.classList.toggle('hide',p.id!==id))}
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{save();showP(b.dataset.p);if(b.dataset.p==='m-main')sum()});
+function chips(id,opts,get,set){const c=$(id);c.innerHTML='';opts.forEach(([v,l])=>{const b=document.createElement('button');b.className='chip'+(get()===v?' on':'');b.textContent=l;b.onclick=()=>{set(v);save();chips(id,opts,get,set)};c.appendChild(b)})}
+function sum(){const b=best()['k'+S.kelas];$('#sum').textContent=`${LB[S.level]} ${MP[S.mapel]} • ${S.np} pemain • ${TH[S.dunia].n}`+(b?` • Skor terbaik: ${b}`:'')}
+function names(){const n=$('#names');n.innerHTML='';for(let i=0;i<S.np;i++){const e=document.createElement('input');e.type='text';e.maxLength=14;e.placeholder='Nama Pemain '+(i+1);e.value=S.names[i]==='Pemain '+(i+1)?'':S.names[i];e.style.cssText='margin-top:6px;border-left:10px solid '+CS[i];e.oninput=()=>{S.names[i]=e.value.trim()||'Pemain '+(i+1);save()};n.appendChild(e)}}
+function initMenu(){
+ chips('#ch-kelas',[['mudah','😀 Mudah (Kelas 1–2)'],['sedang','🙂 Sedang (Kelas 3–4)'],['sulit','🤔 Sulit (Kelas 5–6)']],()=>S.level,v=>{S.level=v;S.kelas=LK[v]});
+ chips('#ch-mapel',[['mtk','🔢 Matematika'],['ipas','🔬 IPAS'],['pkn','🇮🇩 Pancasila'],['pai','🕌 Pendidikan Agama Islam'],['pjok','🏅 PJOK'],['sbd','🎨 Seni Budaya'],['eng','🇬🇧 Bahasa Inggris'],['bin','📖 Bahasa Indonesia'],['mix','🎲 Campuran']],()=>S.mapel,v=>{S.mapel=v});
+ chips('#ch-np',[1,2,3,4,5,6,7,8].map(k=>[k,k+' Pemain']),()=>S.np,v=>{S.np=v;names()});
+ chips('#ch-dunia',Object.keys(TH).map(k=>[k,TH[k].n]),()=>S.dunia,v=>{S.dunia=v;mkDemo()});
+ chips('#ch-mute',[[false,'🔊 Suara Hidup'],[true,'🔇 Mute']],()=>S.mute,v=>{S.mute=v;avol()});
+ chips('#ch-total',[5,10,15,20].map(k=>[k,k+' soal']),()=>S.total,v=>{S.total=v});
+ names();$('#vol').value=S.vol;$('#vol').oninput=e=>{S.vol=+e.target.value;avol();save()}}
+$('#go').onclick=startGame;$('#again').onclick=startGame;
+$('#bp').onclick=()=>pause(true);$('#resume').onclick=()=>pause(false);
+$('#bm').onclick=$('#tomenu').onclick=$('#rmenu').onclick=toMenu;
+$('#reset').onclick=()=>{try{localStorage.removeItem('pc_best')}catch(e){}sum();$('#reset').textContent='✔ Terhapus'};
+
+/* ===== MULAI ===== */
+S.np=Math.min(8,Math.max(1,S.np));initMenu();mkDemo();layout();requestAnimationFrame(frame);
+$('#lb').style.width='100%';
+setTimeout(()=>{$('#load').classList.add('hide');state='menu';$('#menu').classList.remove('hide');sum()},700);
+</script></body></html>
